@@ -1,0 +1,34 @@
+{
+  "name": "BeInvestor",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start-db-init": "knex migrate:latest && node ./src/app.js",
+    "test": "node jasmine.js",
+    "db-update": "knex migrate:latest",
+    "db-rollback-latest": "knex migrate:rollback",
+    "db-fill": "knex seed:run",
+    "fill-first-users": "node ./pre-fill-script/prepare-base-users.js",
+    "serverRun": "nodemon ./src/app.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^4.0.1",
+    "body-parser": "^1.19.0",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "jasmine": "^3.5.0",
+    "jsonwebtoken": "^8.5.1",
+    "knex": "^0.20.9",
+    "mysql": "^2.18.1",
+    "mysql2": "^2.1.0",
+    "objection": "^2.1.2"
+  },
+  "devDependencies": {
+    "jasmine-console-reporter": "^3.1.0",
+    "nodemon": "^2.0.2"
+  }
+}
