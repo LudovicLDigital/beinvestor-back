@@ -1,8 +1,10 @@
 const authRouter = require('../../shared/config/router-configurator');
 const ErrorHandler = require("../../shared/util/error-handler");
 const PasswordCrypter = require("../../shared/util/password-crypter");
-const UserRepository = require('../repository/user-repository');
-const UserTokenRepository = require('../repository/user-token-repository');
+const UserRepository = require('../repository/user/user-repository');
+const UserTokenRepository = require('../repository/user/user-token-repository');
+const Auth = require("../../shared/middleware/auth-guard");
+
 const jwt = require('jsonwebtoken');
 authRouter.route('/login')
     .post(function(req, res) {
@@ -25,6 +27,7 @@ function generateAndSaveUserFoundToken(req, res, userFound) {
     const accessToken = generateToken(userFound.id);
     const refreshToken = jwt.sign({date: userFound.id}, process.env.REFRESH_TOKEN_SECRET);
     console.log('===TRYING TO CREATE A NEW TOKEN WITH USER ID===');
+    Auth.currentUser = userFound;
     UserTokenRepository.createToken(userFound.id, refreshToken).then(() => {
         res.json({ accessToken: accessToken, refreshToken: refreshToken })
     }).catch((err) => {
@@ -61,8 +64,9 @@ authRouter.post('/token', (req, res) => {
 
 authRouter.delete('/logout', (req, res) => {
     console.log('===TRYING TO LOGOUT WITH TOKEN DELETION===');
+    Auth.currentUser = null;
     UserTokenRepository.deleteToken(req.body.token).then(() => {
-        res.sendStatus(204)
+        res.sendStatus(200)
     }).catch((err) => {
         console.log(`/logout HAVE FAILED`);
         ErrorHandler.errorHandler(err, res);

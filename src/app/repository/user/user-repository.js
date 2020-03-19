@@ -1,6 +1,6 @@
-const User = require("../models/user");
+const User = require("../../models/user/user");
 const UserPersonalInfoRepo = require('./user-personal-info-repository');
-const PasswordCrypter = require('../../shared/util/password-crypter');
+const PasswordCrypter = require('../../../shared/util/password-crypter');
 class UserRepository {
     static async createUser(userDatas){
          const hashedPassword = await PasswordCrypter.cryptPassword(userDatas.password);

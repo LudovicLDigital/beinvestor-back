@@ -1,10 +1,10 @@
 const userRouter = require('../../shared/config/router-configurator');
-const UserRepository = require('../repository/user-repository');
+const UserRepository = require('../repository/user/user-repository');
 const ErrorHandler = require("../../shared/util/error-handler");
-const authenticationToken = require("../../shared/middleware/auth-guard");
+const Auth = require("../../shared/middleware/auth-guard");
 /** Set default endpoint for users **/
 userRouter.route('/users')
-    .get(authenticationToken, function(req, res){
+    .get(Auth.authenticationToken, function(req, res){
         console.log(`GET ALL USERS`);
         UserRepository.getAllUser().then((users) => {
             res.json(users);
@@ -13,7 +13,7 @@ userRouter.route('/users')
             ErrorHandler.errorHandler(err, res);
         });
     })
-    .post(authenticationToken, function(req, res) {
+    .post(Auth.authenticationToken, function(req, res) {
         console.log(`CREATE USERS ${req.body.login}`);
         const userDatas = {
             login: req.body.login,
@@ -33,7 +33,7 @@ userRouter.route('/users')
             ErrorHandler.errorHandler(err, res);
         });
     })
-    .put(authenticationToken, function(req, res){
+    .put(Auth.authenticationToken, function(req, res){
         console.log(`UPDATE USER WITH ID ${req.body.id}`);
         const userDatas = {
             login: req.body.login,
@@ -49,7 +49,7 @@ userRouter.route('/users')
         });
     });
 userRouter.route('/users/id/:user_id')
-    .get(authenticationToken, function(req, res){
+    .get(Auth.authenticationToken, function(req, res){
         console.log(`GET USER WITH ID ${req.params.user_id}`);
         UserRepository.getUserById(req.params.user_id).then((userFound) => {
             res.json(userFound);
@@ -58,7 +58,7 @@ userRouter.route('/users/id/:user_id')
             ErrorHandler.errorHandler(err, res);
         });
     })
-    .delete(authenticationToken, function(req, res){
+    .delete(Auth.authenticationToken, function(req, res){
         console.log(`DELETE USER WITH ID ${req.params.user_id}`);
         UserRepository.deleteUser(req.params.user_id).then(() => {
             res.sendStatus(200);
@@ -68,7 +68,7 @@ userRouter.route('/users/id/:user_id')
         });
     });
 userRouter.route('/users/login/:login')
-    .get(authenticationToken, function(req, res){
+    .get(Auth.authenticationToken, function(req, res){
         console.log(`GET USER WITH LOGIN ${req.params.login}`);
         UserRepository.getUserByLogin(req.params.login).then((userFound) => {
             res.json(userFound);

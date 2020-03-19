@@ -1,4 +1,4 @@
-const UserPersonalInfo = require("../models/user-personal-info");
+const UserPersonalInfo = require("../../models/user/user-personal-info");
 
 class UserPersonalInfoRepository {
     static async createUserInfo(userDatas, userId){
