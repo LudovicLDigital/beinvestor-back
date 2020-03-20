@@ -2,11 +2,13 @@ const UserRolesRepository = require('../repository/roles/user-roles-repository')
 const RolesRepository = require('../repository/roles/roles-repository');
 const ErrorHandler = require("../../shared/util/error-handler");
 const Auth = require("../../shared/middleware/auth-guard");
+const Access = require("../../shared/middleware/role-guard");
 const roleRouter = require('../../shared/config/router-configurator');
+const Constants = require('../../shared/constants');
 /** Set default endpoint for roles**/
 roleRouter.route('/api/roles')
 // get all roles of role table
-    .get(Auth.authenticationToken, function (req, res) {
+    .get(Auth.authenticationToken, Access.haveAccess(Constants.READ_ALL, Constants.T_ROLE), function (req, res) {
         console.log(`====TRYING GET ALL ROLE===`);
         RolesRepository.getRolesList().then((rolesFound) => {
             res.json(rolesFound);

@@ -2,6 +2,7 @@ const authRouter = require('../../shared/config/router-configurator');
 const ErrorHandler = require("../../shared/util/error-handler");
 const PasswordCrypter = require("../../shared/util/password-crypter");
 const UserRepository = require('../repository/user/user-repository');
+const UserRolesRepository = require('../repository/roles/user-roles-repository');
 const UserTokenRepository = require('../repository/user/user-token-repository');
 const Auth = require("../../shared/middleware/auth-guard");
 
@@ -33,25 +34,31 @@ authRouter.route('/api/login')
  * @param userFound the user recovered with the passed password and login
  */
 function generateAndSaveUserFoundToken(req, res, userFound) {
-    const accessToken = generateToken(userFound);
-    const refreshToken = jwt.sign({data: userFound}, process.env.REFRESH_TOKEN_SECRET);
-    console.log(`====TRYING TO CREATE A NEW TOKEN WITH USER ID : ${userFound.id}===`);
-    Auth.currentUser = userFound;
-    UserTokenRepository.createToken(userFound.id, refreshToken).then(() => {
-        res.json({ accessToken: accessToken, refreshToken: refreshToken })
-    }).catch((err) => {
-        if (err && err.constraint === 'userId_is_unique') {
-            console.log(`====USERID EXISTING IN DB, TRYING TO UPDATE TOKEN NOW===`);
-            UserTokenRepository.updateToken(userFound.id, refreshToken).then(() => {
-                res.json({ accessToken: accessToken, refreshToken: refreshToken })
-            }).catch((err) => {
-                console.log(`updateToken HAVE FAILED`);
+    UserRolesRepository.getAllPassedUserRoles(userFound.id).then((userRoles) => {
+        userFound.roles = userRoles;
+        const accessToken = generateToken(userFound);
+        const refreshToken = jwt.sign({data: userFound}, process.env.REFRESH_TOKEN_SECRET);
+        console.log(`====TRYING TO CREATE A NEW TOKEN WITH USER ID : ${userFound.id}===`);
+        Auth.currentUser = userFound;
+        UserTokenRepository.createToken(userFound.id, refreshToken).then(() => {
+            res.json({ accessToken: accessToken, refreshToken: refreshToken })
+        }).catch((err) => {
+            if (err && err.constraint === 'userId_is_unique') {
+                console.log(`====USERID EXISTING IN DB, TRYING TO UPDATE TOKEN NOW===`);
+                UserTokenRepository.updateToken(userFound.id, refreshToken).then(() => {
+                    res.json({ accessToken: accessToken, refreshToken: refreshToken })
+                }).catch((err) => {
+                    console.log(`updateToken HAVE FAILED`);
+                    ErrorHandler.errorHandler(err, res);
+                });
+            } else {
+                console.log(`/login HAVE FAILED to createToken in db`);
                 ErrorHandler.errorHandler(err, res);
-            });
-        } else {
-            console.log(`/login HAVE FAILED to createToken in db`);
-            ErrorHandler.errorHandler(err, res);
-        }
+            }
+        });
+    }).catch((err) => {
+        console.log(`getAllPassedUserRoles HAVE FAILED`);
+        ErrorHandler.errorHandler(err, res);
     });
 }
 
