@@ -1,11 +1,5 @@
 const jwt = require('jsonwebtoken');
 const auth = {
-    get currentUser() {
-        return this._currentUser || null;
-    },
-    set currentUser(user) {
-        this._currentUser = user;
-    },
     authenticationToken(req, res, next) {
         const authHeader = req.headers['authorization'];
         const tokenReceived = authHeader && authHeader.split(' ')[1];

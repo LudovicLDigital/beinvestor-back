@@ -10,10 +10,17 @@ class UserPersonalInfoRepository {
         });
     }
     static async getUserInfoByUserId(userId){
-
+        return await UserPersonalInfo.query()
+            .where('userId', userId).first();
     }
-    static async updateUserInfo(req){
-
+    static async updateUserInfo(infoDatas){
+        const updateInfos = new UserPersonalInfo();
+        updateInfos.id = infoDatas.id;
+        updateInfos.firstName = infoDatas.firstName;
+        updateInfos.lastName = infoDatas.lastName;
+        updateInfos.birthDate = infoDatas.birthDate;
+        updateInfos.userId = infoDatas.userId;
+        return await UserPersonalInfo.query().updateAndFetchById(updateInfos.id, updateInfos).throwIfNotFound();
     }
 }
 module.exports = UserPersonalInfoRepository;
