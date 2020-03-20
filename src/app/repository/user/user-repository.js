@@ -1,6 +1,7 @@
-const User = require("../models/user");
+const User = require("../../models/user/user");
 const UserPersonalInfoRepo = require('./user-personal-info-repository');
-const PasswordCrypter = require('../../shared/util/password-crypter');
+const UserRolesRepository = require('../roles/user-roles-repository');
+const PasswordCrypter = require('../../../shared/util/password-crypter');
 class UserRepository {
     static async createUser(userDatas){
          const hashedPassword = await PasswordCrypter.cryptPassword(userDatas.password);
@@ -11,6 +12,7 @@ class UserRepository {
             phone: userDatas.phone
         });
         await UserPersonalInfoRepo.createUserInfo(userDatas, userSaved.id);
+        await UserRolesRepository.createUserRole(userSaved.id, 1);
         return userSaved;
     }
     static async getAllUser(){

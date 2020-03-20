@@ -1,5 +1,5 @@
 const { Model } = require("objection");
-const knexInstance = require("../../../knexInstance");
+const knexInstance = require("../../../../knexInstance");
 
 class UserPersonalInfo extends Model {
     static get tableName() {

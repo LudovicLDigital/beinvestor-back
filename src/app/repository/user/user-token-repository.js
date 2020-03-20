@@ -1,4 +1,4 @@
-const UserToken = require("../models/user-token");
+const UserToken = require("../../models/user/user-token");
 class UserTokenRepository {
     static async createToken(userId, refreshToken){
         const userToken = await UserToken.query().insertGraph({

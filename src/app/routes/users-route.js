@@ -1,10 +1,23 @@
 const userRouter = require('../../shared/config/router-configurator');
-const UserRepository = require('../repository/user-repository');
+const UserRepository = require('../repository/user/user-repository');
+const UserInfoRepository = require('../repository/user/user-personal-info-repository');
 const ErrorHandler = require("../../shared/util/error-handler");
-const authenticationToken = require("../../shared/middleware/auth-guard");
+const Auth = require("../../shared/middleware/auth-guard");
+function prepareUserDatas(req) {
+    return {
+        id: req.body.id,
+        login: req.body.login,
+        password: req.body.password,
+        mail: req.body.mail,
+        phone: req.body.phone,
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        birthDate: req.body.birthDate,
+    };
+}
 /** Set default endpoint for users **/
-userRouter.route('/users')
-    .get(authenticationToken, function(req, res){
+userRouter.route('/api/users')
+    .get(Auth.authenticationToken, function(req, res){
         console.log(`GET ALL USERS`);
         UserRepository.getAllUser().then((users) => {
             res.json(users);
@@ -13,17 +26,9 @@ userRouter.route('/users')
             ErrorHandler.errorHandler(err, res);
         });
     })
-    .post(authenticationToken, function(req, res) {
+    .post(Auth.authenticationToken, function(req, res) {
         console.log(`CREATE USERS ${req.body.login}`);
-        const userDatas = {
-            login: req.body.login,
-            password: req.body.password,
-            mail: req.body.mail,
-            phone: req.body.phone,
-            firstName: req.body.firstName,
-            lastName: req.body.lastName,
-            birthDate: req.body.birthDate,
-        };
+        const userDatas = prepareUserDatas(req);
         UserRepository.createUser(userDatas).then((user) => {
             res.send({
                 message: `User saved in database with id : ${user.id}`
@@ -33,14 +38,9 @@ userRouter.route('/users')
             ErrorHandler.errorHandler(err, res);
         });
     })
-    .put(authenticationToken, function(req, res){
+    .put(Auth.authenticationToken, function(req, res){
         console.log(`UPDATE USER WITH ID ${req.body.id}`);
-        const userDatas = {
-            login: req.body.login,
-            password: req.body.password,
-            mail: req.body.mail,
-            phone: req.body.phone,
-        };
+        const userDatas = prepareUserDatas(req);
         UserRepository.updateUser(userDatas).then((user) => {
             res.json(user);
         }).catch((err) => {
@@ -48,8 +48,49 @@ userRouter.route('/users')
             ErrorHandler.errorHandler(err, res);
         });
     });
-userRouter.route('/users/id/:user_id')
-    .get(authenticationToken, function(req, res){
+/** get passed user's id info **/
+userRouter.route('/api/users/info/:user_id')
+    .get(Auth.authenticationToken, function(req, res){
+        console.log(`===TRYING GET USER'S ID USER INFO : ${req.params.user_id} ===`);
+        UserInfoRepository.getUserInfoByUserId(req.params.user_id).then((infos) => {
+            res.json(infos);
+        }).catch((err) => {
+            console.log(`/users/info/:user_id GET HAVE FAILED`);
+            ErrorHandler.errorHandler(err, res);
+        });
+    });
+/**
+ * Interact with all data of users and user-personal-info for the current user
+ */
+userRouter.route('/api/users/current')
+    .get(Auth.authenticationToken, function(req, res){
+        console.log(`===TRYING GET CURRENT USER INFO===`);
+        UserInfoRepository.getUserInfoByUserId(req.user.data.id).then((infos) => {
+            res.json({
+                user: req.user.data,
+                userInfo: infos
+            });
+        }).catch((err) => {
+            console.log(`/users/current GET HAVE FAILED`);
+            ErrorHandler.errorHandler(err, res);
+        });
+    })
+    .put(Auth.authenticationToken, function(req, res){
+        console.log(`UPDATE CURRENT USER`);
+        req.body.id = req.user.data.id;
+        const userDatas = prepareUserDatas(req);
+        UserRepository.updateUser(userDatas).then((user) => {
+            res.json(user);
+        }).catch((err) => {
+            console.log(`/users/current UPDATE HAVE FAILED`);
+            ErrorHandler.errorHandler(err, res);
+        });
+    });
+/**
+ * Interact with user's id
+ */
+userRouter.route('/api/users/id/:user_id')
+    .get(Auth.authenticationToken, function(req, res){
         console.log(`GET USER WITH ID ${req.params.user_id}`);
         UserRepository.getUserById(req.params.user_id).then((userFound) => {
             res.json(userFound);
@@ -58,7 +99,7 @@ userRouter.route('/users/id/:user_id')
             ErrorHandler.errorHandler(err, res);
         });
     })
-    .delete(authenticationToken, function(req, res){
+    .delete(Auth.authenticationToken, function(req, res){
         console.log(`DELETE USER WITH ID ${req.params.user_id}`);
         UserRepository.deleteUser(req.params.user_id).then(() => {
             res.sendStatus(200);
@@ -67,8 +108,11 @@ userRouter.route('/users/id/:user_id')
             ErrorHandler.errorHandler(err, res);
         });
     });
-userRouter.route('/users/login/:login')
-    .get(authenticationToken, function(req, res){
+/**
+ * Interact with login users
+ */
+userRouter.route('/api/users/login/:login')
+    .get(Auth.authenticationToken, function(req, res){
         console.log(`GET USER WITH LOGIN ${req.params.login}`);
         UserRepository.getUserByLogin(req.params.login).then((userFound) => {
             res.json(userFound);
