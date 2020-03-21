@@ -8,8 +8,7 @@
     "test": "node jasmine.js",
     "db-update": "knex migrate:latest",
     "db-rollback-latest": "knex migrate:rollback",
-    "db-fill": "knex seed:run",
-    "fill-first-users": "node ./pre-fill-script/prepare-base-users.js",
+    "db-fill": "node ./pre-fill-script/prepare-base-users.js && knex seed:run",
     "serverRun": "nodemon ./src/app.js"
   },
   "keywords": [],

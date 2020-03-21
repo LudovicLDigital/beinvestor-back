@@ -1,3 +1,5 @@
+const Constant = require("../../shared/constants");
+
 const {
     ValidationError,
     NotFoundError,
@@ -106,6 +108,12 @@ class ErrorHandler {
                 type: 'UnknownDatabaseError',
                 data: {}
             });
+        } else if (err.type === Constant.BAD_REQUEST) {
+            res.status(400).send({
+                message: err.message,
+                type: Constant.BAD_REQUEST,
+                data: {}
+            })
         } else {
             res.status(500).send({
                 message: err.message,

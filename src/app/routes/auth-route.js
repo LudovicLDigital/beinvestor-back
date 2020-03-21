@@ -5,7 +5,8 @@ const UserRepository = require('../repository/user/user-repository');
 const UserRolesRepository = require('../repository/roles/user-roles-repository');
 const UserTokenRepository = require('../repository/user/user-token-repository');
 const Auth = require("../../shared/middleware/auth-guard");
-
+const Constants = require("../../shared/constants");
+const Access = require("../../shared/middleware/role-guard");
 const jwt = require('jsonwebtoken');
 /**
  * Use this endpoint to log an user with his credentials
@@ -65,7 +66,7 @@ function generateAndSaveUserFoundToken(req, res, userFound) {
 /**
  * You this endPoint to recover a new Access-token with passed body token
  */
-authRouter.post('/token', (req, res) => {
+authRouter.post('/token', Access.haveAccess(Constants.READ, Constants.T_USER_TOKEN), (req, res) => {
     console.log(`====TRYING TO REQUEST A NEW ACCESS TOKEN WITH REFRESH TOKEN===`);
     const refreshToken = req.body.token;
     if (refreshToken == null) return res.sendStatus(401);
@@ -84,7 +85,7 @@ authRouter.post('/token', (req, res) => {
 /**
  * EndPoint to logout (delete the refresh token from database )
  */
-authRouter.delete('/logout', (req, res) => {
+authRouter.delete('/logout', Access.haveAccess(Constants.UPDATE, Constants.T_USER_TOKEN), (req, res) => {
     console.log(`====TRYING TO LOGOUT WITH TOKEN DELETION===`);
     Auth.currentUser = null;
     UserTokenRepository.deleteToken(req.body.token).then(() => {
