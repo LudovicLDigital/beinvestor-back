@@ -69,7 +69,7 @@ roleRouter.route('/api/roles/current')
 /**
  * EndPoint to act on the passed role id for the current user
  */
-roleRouter.route('/api/roles/role/:role_id')
+roleRouter.route('/api/roles/:role_id')
 // create the passed role id for the current logged user
     .post(Auth.authenticationToken, function(req, res){
         console.log(`====TRYING TO CREATE PASSED ROLE FOR CURRENT USER : ${req.params.role_id}===`);

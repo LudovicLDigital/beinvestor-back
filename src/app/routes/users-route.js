@@ -30,9 +30,7 @@ userRouter.route('/api/users')
         console.log(`CREATE USERS ${req.body.login}`);
         const userDatas = prepareUserDatas(req);
         UserRepository.createUser(userDatas).then((user) => {
-            res.send({
-                message: `User saved in database with id : ${user.id}`
-            });
+            res.send(user);
         }).catch((err) => {
             console.log(`/users POST HAVE FAILED`);
             ErrorHandler.errorHandler(err, res);

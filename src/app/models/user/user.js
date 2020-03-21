@@ -15,6 +15,7 @@ class User extends Model {
         return "user";
     }
     static get relationMappings() {
+        const Group = require("../group/group");
         return {
             roles: {
                 relation: Model.ManyToManyRelation,
@@ -28,7 +29,20 @@ class User extends Model {
                     },
                     to: 'roles.id'
                 }
-            }
+            },
+            groups: {
+                relation: Model.ManyToManyRelation,
+                modelClass: Group,
+                join: {
+                    from: 'user.id',
+                    through: {
+                        // user_groups is the join table.
+                        from: 'user_groups.userId',
+                        to: 'user_groups.groupId'
+                    },
+                    to: 'groups.id'
+                }
+            },
         }
     }
 }

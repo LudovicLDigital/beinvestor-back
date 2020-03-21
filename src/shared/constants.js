@@ -19,3 +19,13 @@ exports.R_NO_PUB = 'freeNoPub';
 exports.R_PREMIUM = 'premiumUser';
 exports.R_PRO = 'professional';
 exports.R_ADMIN = 'admin';
+// Errors
+exports.BAD_REQUEST = 'Bad Request';
+exports.ERROR_400_FUNC = function (errorMessage) {
+    return new Promise(((resolve, reject) =>
+            reject({
+                type: 'Bad Request',
+                message: errorMessage
+            })
+    ));
+};
