@@ -8,7 +8,7 @@ const Constants = require('../../shared/constants');
 /** Set default endpoint for groups**/
 groupRouter.route('/api/groups')
 // get all groups of group table
-    .get(Auth.authenticationToken, function (req, res) {
+    .get(Auth.authenticationToken, Access.haveAccess(Constants.READ_ALL, Constants.T_GROUP), function (req, res) {
         console.log(`====TRYING GET ALL GROUP===`);
         GroupRepository.getGroupList().then((groups) => {
             res.json(groups);
@@ -17,8 +17,8 @@ groupRouter.route('/api/groups')
             ErrorHandler.errorHandler(err, res);
         });
     })
-    // get all groups of group table
-    .put(Auth.authenticationToken, function (req, res) {
+    // update groups of group table
+    .put(Auth.authenticationToken, Access.haveAccess(Constants.UPDATE_ALL, Constants.T_GROUP), function (req, res) {
         console.log(`====TRYING UPDATE GROUP ${req.body.id}===`);
         const groupDatas = {
             id: req.body.id,
@@ -33,7 +33,7 @@ groupRouter.route('/api/groups')
         });
     })
     // create group
-    .post(Auth.authenticationToken, function(req, res){
+    .post(Auth.authenticationToken, Access.haveAccess(Constants.CREATE_ALL, Constants.T_GROUP), function(req, res){
         console.log(`====TRYING TO CREATE GROUP ===`);
         const groupDatas = {
             name: req.body.name,
@@ -51,7 +51,7 @@ groupRouter.route('/api/groups')
  */
 groupRouter.route('/api/groups/city/of/:group_id')
 // get the city of passed group id
-    .get(Auth.authenticationToken, function(req, res){
+    .get(Auth.authenticationToken, Access.haveAccess(Constants.READ_ALL, Constants.T_GROUP), function(req, res){
         console.log(`====TRYING TO GET CITY OF THE GROUP : ${req.params.group_id}===`);
         GroupRepository.getCityGroup(req.params.group_id).then((city) => {
             res.json(city);
@@ -61,11 +61,11 @@ groupRouter.route('/api/groups/city/of/:group_id')
         });
     });
 /**
- * EndPoint to retrieve groups with city name //todo buggy
+ * EndPoint to retrieve groups with city name
  */
 groupRouter.route('/api/groups/city/search/:name')
 // get the groups corresponding by cityname
-    .get(Auth.authenticationToken, function(req, res){
+    .get(Auth.authenticationToken, Access.haveAccess(Constants.READ_ALL, Constants.T_GROUP), function(req, res){
         console.log(`====TRYING TO GET CITY OF THE GROUP BY NAME : ${req.params.name}===`);
         GroupRepository.getGroupByCityName(req.params.name).then((city) => {
             res.json(city);
@@ -79,7 +79,7 @@ groupRouter.route('/api/groups/city/search/:name')
  */
 groupRouter.route('/api/groups/city/:city_id')
 // get the groups corresponding by city id
-    .get(Auth.authenticationToken, function(req, res){
+    .get(Auth.authenticationToken, Access.haveAccess(Constants.READ_ALL, Constants.T_GROUP), function(req, res){
         console.log(`====TRYING TO GET GROUP BY CITY ID : ${req.params.city_id}===`);
         GroupRepository.getGroupByCityId(req.params.city_id).then((group) => {
             res.json(group);
@@ -92,7 +92,7 @@ groupRouter.route('/api/groups/city/:city_id')
 
 groupRouter.route('/api/groups/members')
 // get members of the passed group from user_group table
-    .post(Auth.authenticationToken, function (req, res) {
+    .post(Auth.authenticationToken, Access.haveAccess(Constants.CREATE_ALL, Constants.T_USER_GROUP), function (req, res) {
         console.log(`====TRYING ADD A MEMBER TO GROUP : ${req.body.groupId}===`);
         UserGroupRepository.addUserToGroup(req.body.groupId, req.body.userId).then((created) => {
             res.sendStatus(201);
@@ -102,7 +102,7 @@ groupRouter.route('/api/groups/members')
         });
     })
 // delete a member of the passed group from user_group table
-    .delete(Auth.authenticationToken, function (req, res) {
+    .delete(Auth.authenticationToken, Access.haveAccess(Constants.DELETE_ALL, Constants.T_USER_GROUP), function (req, res) {
         console.log(`====TRYING DELETE A MEMBER FROM GROUP : ${req.body.groupId}===`);
         UserGroupRepository.deleteAMember(req.body.groupId, req.body.userId).then(() => {
             res.sendStatus(200);
@@ -117,7 +117,7 @@ groupRouter.route('/api/groups/members')
  */
 groupRouter.route('/api/groups/members/:user_id')
 // get groups of the user from user_group table
-    .get(Auth.authenticationToken, function (req, res) {
+    .get(Auth.authenticationToken, Access.haveAccess(Constants.READ_ALL, Constants.T_USER_GROUP), function (req, res) {
         console.log(`====TRYING GET GROUP OF USER ID PASSED ${req.params.user_id}===`);
         UserGroupRepository.getAllGroupOfUser(req.params.user_id).then((groupsFound) => {
             res.json(groupsFound);
@@ -128,7 +128,7 @@ groupRouter.route('/api/groups/members/:user_id')
     });
 groupRouter.route('/api/groups/members/of/:group_id')
 // get members of the passed group from user_group table
-    .get(Auth.authenticationToken, function (req, res) {
+    .get(Auth.authenticationToken, Access.haveAccess(Constants.READ_ALL, Constants.T_USER_GROUP),  function (req, res) {
         console.log(`====TRYING GET All MEMBERS OF GROUP : ${req.params.group_id}===`);
         UserGroupRepository.getAllMembers(req.params.group_id).then((usersFound) => {
             res.json(usersFound);
@@ -142,12 +142,36 @@ groupRouter.route('/api/groups/members/of/:group_id')
  */
 groupRouter.route('/api/groups/current')
 // get all groups of the current logged user
-    .get(Auth.authenticationToken, function (req, res) {
+    .get(Auth.authenticationToken, Access.haveAccess(Constants.READ, Constants.T_USER_GROUP),  function (req, res) {
         console.log(`=====TRYING GET GROUP OF CURRENT USER===`);
         UserGroupRepository.getAllGroupOfUser(req.user.data.id).then((groupsFound) => {
             res.json(groupsFound);
         }).catch((err) => {
             console.log(`/groups/current GET HAVE FAILED`);
+            ErrorHandler.errorHandler(err, res);
+        });
+    });
+/**
+ * EndPoint to recover groups of the current user
+ */
+groupRouter.route('/api/groups/current/:group_id')
+// the current logged user join group
+    .post(Auth.authenticationToken, Access.haveAccess(Constants.CREATE, Constants.T_USER_GROUP),  function (req, res) {
+        console.log(`=====TRYING CURRENT USER TO JOIN GROUP : ${req.params.group_id} ===`);
+        UserGroupRepository.addUserToGroup(req.params.group_id, req.user.data.id).then(() => {
+            res.sendStatus(201);
+        }).catch((err) => {
+            console.log(`/groups/current/:group_id CURRENT USER JOIN GROUP FAILED`);
+            ErrorHandler.errorHandler(err, res);
+        });
+    })
+// the current logged user left group
+    .delete(Auth.authenticationToken, Access.haveAccess(Constants.DELETE, Constants.T_USER_GROUP),  function (req, res) {
+        console.log(`=====TRYING CURRENT USER TO LEFT GROUP : ${req.params.group_id} ===`);
+        UserGroupRepository.deleteAMember(req.params.group_id, req.user.data.id).then(() => {
+            res.sendStatus(200);
+        }).catch((err) => {
+            console.log(`/groups/current/:group_id CURRENT USER LEFT GROUP FAILED`);
             ErrorHandler.errorHandler(err, res);
         });
     });

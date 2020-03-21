@@ -6,8 +6,10 @@ exports.roles = (function() {
         .readOwn(Constants.T_USER).readAny(Constants.T_USER).updateOwn(Constants.T_USER).deleteOwn(Constants.T_USER)
         .readOwn(Constants.T_USER_INFO).readAny(Constants.T_USER_INFO).updateOwn(Constants.T_USER_INFO).deleteOwn(Constants.T_USER_INFO)
         .readOwn(Constants.T_USER_TOKEN).updateOwn(Constants.T_USER_TOKEN)
-        .readOwn(Constants.T_USER_ROLE).readAny(Constants.T_USER_ROLE)
-        .readAny(Constants.T_ROLE);
+        .readOwn(Constants.T_USER_ROLE)
+        .readAny(Constants.T_ROLE)
+        .readAny(Constants.T_GROUP)
+        .createOwn(Constants.T_USER_GROUP).deleteOwn(Constants.T_USER_GROUP).readAny(Constants.T_USER_GROUP);
     accessControlInstance.grant(Constants.R_NO_PUB)
         .extend(Constants.R_FREE);
     accessControlInstance.grant(Constants.R_PREMIUM)
@@ -20,7 +22,9 @@ exports.roles = (function() {
         .createAny(Constants.T_USER_INFO).updateAny(Constants.T_USER_INFO).deleteAny(Constants.T_USER_INFO)
         .createAny(Constants.T_USER_TOKEN).readAny(Constants.T_USER_TOKEN).updateAny(Constants.T_USER_TOKEN).deleteAny(Constants.T_USER_TOKEN)
         .createAny(Constants.T_USER_ROLE).updateAny(Constants.T_USER_ROLE).deleteAny(Constants.T_USER_ROLE)
-        .createAny(Constants.T_ROLE).updateAny(Constants.T_ROLE).deleteAny(Constants.T_ROLE);
+        .createAny(Constants.T_ROLE).updateAny(Constants.T_ROLE).deleteAny(Constants.T_ROLE)
+        .createAny(Constants.T_GROUP).updateAny(Constants.T_GROUP).deleteAny(Constants.T_GROUP)
+        .createAny(Constants.T_USER_GROUP).deleteAny(Constants.T_USER_GROUP);
     return accessControlInstance;
 })();
 
