@@ -1,5 +1,5 @@
 require('dotenv').config();
-const hostname = 'localhost';
+const hostname = '192.168.1.87';
 const port = 3000;
 const app = require('./shared/config/main-app-router');
 
