@@ -4,10 +4,10 @@ const auth = {
         const authHeader = req.headers['authorization'];
         const tokenReceived = authHeader && authHeader.split(' ')[1];
         if (tokenReceived === null || tokenReceived === undefined) {
-            return res.sendStatus(401);
+            return res.status(401).send({message: 'Vous n\'êtes pas connecté'});
         }
         jwt.verify(tokenReceived, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-            if (err) return res.sendStatus(403);
+            if (err) return res.status(403).send({message: 'Action non autorisée'});
             req.user = user;
             next()
         })

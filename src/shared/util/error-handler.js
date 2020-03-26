@@ -114,6 +114,12 @@ class ErrorHandler {
                 type: Constant.BAD_REQUEST,
                 data: {}
             })
+        } else if (err.type === Constant.UNAUTHORIZE) {
+            res.status(403).send({
+                message: err.message,
+                type: Constant.UNAUTHORIZE,
+                data: {}
+            })
         } else {
             res.status(500).send({
                 message: err.message,

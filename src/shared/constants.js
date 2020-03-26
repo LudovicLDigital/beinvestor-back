@@ -23,6 +23,7 @@ exports.R_PRO = 'professional';
 exports.R_ADMIN = 'admin';
 // Errors
 exports.BAD_REQUEST = 'Bad Request';
+exports.UNAUTHORIZE = 'Unauthorize';
 exports.ERROR_400_FUNC = function (errorMessage) {
     return new Promise(((resolve, reject) =>
             reject({

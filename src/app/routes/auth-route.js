@@ -16,17 +16,24 @@ authRouter.route('/api/login')
         console.log(`====TRYING TO GET USER BY LOGIN REQUESTED : ${req.body.login}===`);
         UserRepository.getUserByLogin(req.body.login).then((userFound) => {
             if (userFound[0] && userFound[0] !== null ) {
-                if (PasswordCrypter.comparePassword(userFound[0].password, req.body.password)) {
-                    generateAndSaveUserFoundToken(req, res, userFound[0])
-                } else {
-                    res.sendStatus(401);
-                }
+                PasswordCrypter.comparePassword(userFound[0].password, req.body.password).then((match) => {
+                    if (match) {
+                        generateAndSaveUserFoundToken(req, res, userFound[0])
+                    } else {
+                        ErrorHandler.errorHandler({type: Constants.UNAUTHORIZE, message: 'Mot de passe incorrect'}, res);
+                    }
+                }).catch((rejected) => {
+                    console.log('REJECTED : ' + rejected);
+                    ErrorHandler.errorHandler(rejected, res);
+                });
+            } else {
+                ErrorHandler.errorHandler({message: 'Aucun login correspondant'}, res);
             }
         }).catch((err) => {
             console.log(`getUserByLogin HAVE FAILED`);
             ErrorHandler.errorHandler(err, res);
         });
-        });
+    });
 
 /**
  * Generate or update the user refresh token in database which will be logged
@@ -40,7 +47,6 @@ function generateAndSaveUserFoundToken(req, res, userFound) {
         const accessToken = generateToken(userFound);
         const refreshToken = jwt.sign({data: userFound}, process.env.REFRESH_TOKEN_SECRET);
         console.log(`====TRYING TO CREATE A NEW TOKEN WITH USER ID : ${userFound.id}===`);
-        Auth.currentUser = userFound;
         UserTokenRepository.createToken(userFound.id, refreshToken).then(() => {
             res.json({ accessToken: accessToken, refreshToken: refreshToken })
         }).catch((err) => {
