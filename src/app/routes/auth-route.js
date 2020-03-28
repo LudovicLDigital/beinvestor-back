@@ -81,8 +81,16 @@ authRouter.route('/api/token/:token')
             if( !tokenFound || tokenFound === null) return res.sendStatus(403);
             jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
                 if (err) return res.sendStatus(403);
-                const accessToken = generateToken(user.id);
-                res.json({ accessToken: accessToken })
+                const userFound = user.data;
+                UserRolesRepository.getAllPassedUserRoles(userFound.id).then((userRoles) => {
+                    userFound.roles = userRoles;
+                    req.user = userFound;
+                    const accessToken = generateToken(userFound);
+                    res.json({accessToken: accessToken})
+                }).catch((error) => {
+                    console.log('/token HAVE FAILED on getAllPassedUserRoles');
+                    ErrorHandler.errorHandler(error, res);
+                })
             })
         }).catch((err) => {
             console.log(`/token HAVE FAILED on getTokenSaved`);
