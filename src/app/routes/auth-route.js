@@ -101,7 +101,7 @@ authRouter.route('/api/token/:token')
  * EndPoint to logout (delete the refresh token from database )
  */
 authRouter.route('/api/logout')
-    .delete(Access.haveAccess(Constants.UPDATE, Constants.T_USER_TOKEN), function(req, res){
+    .delete(Auth.authenticationToken, Access.haveAccess(Constants.UPDATE, Constants.T_USER_TOKEN), function(req, res){
     console.log(`====TRYING TO LOGOUT WITH TOKEN DELETION===`);
     Auth.currentUser = null;
     UserTokenRepository.deleteToken(req.body.token).then(() => {
