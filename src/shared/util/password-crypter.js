@@ -5,7 +5,15 @@ class PasswordCrypter {
         return bcrypt.hashSync(passwordToHash, salt);
     }
     static comparePassword(passwordFromDB, passwordReceived) {
-        return bcrypt.compare(passwordReceived, passwordFromDB);
+        return new Promise(((resolve, reject) => {
+            bcrypt.compare(passwordReceived, passwordFromDB, function(err, result) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        }));
     }
 }
 module.exports = PasswordCrypter;

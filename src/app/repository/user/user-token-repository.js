@@ -11,10 +11,10 @@ class UserTokenRepository {
         return await UserToken.query().where('refreshToken', tokenSearched).throwIfNotFound();
     }
     static async updateToken(userId, newRefreshedToken){
-        return UserToken.query().where('userId', userId).then(async(tokenFound) => {
-            tokenFound[0].refreshToken = newRefreshedToken;
-            return await UserToken.query().updateAndFetchById(tokenFound[0].id, tokenFound[0]).throwIfNotFound();
-        });
+        const userToken = await UserToken.query().select().where('userId', userId).first();
+        userToken.refreshToken = newRefreshedToken;
+        userToken.updated_at = new Date();
+        return await UserToken.query().updateAndFetchById(userToken.id, userToken).throwIfNotFound();
     }
     static async deleteToken(tokenToDelete) {
         return await UserToken.query().delete().where('refreshToken', tokenToDelete).throwIfNotFound();

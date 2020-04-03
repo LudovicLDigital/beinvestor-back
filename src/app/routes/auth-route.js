@@ -16,17 +16,24 @@ authRouter.route('/api/login')
         console.log(`====TRYING TO GET USER BY LOGIN REQUESTED : ${req.body.login}===`);
         UserRepository.getUserByLogin(req.body.login).then((userFound) => {
             if (userFound[0] && userFound[0] !== null ) {
-                if (PasswordCrypter.comparePassword(userFound[0].password, req.body.password)) {
-                    generateAndSaveUserFoundToken(req, res, userFound[0])
-                } else {
-                    res.sendStatus(401);
-                }
+                PasswordCrypter.comparePassword(userFound[0].password, req.body.password).then((match) => {
+                    if (match) {
+                        generateAndSaveUserFoundToken(req, res, userFound[0])
+                    } else {
+                        ErrorHandler.errorHandler({type: Constants.UNAUTHORIZE, message: 'Mot de passe incorrect'}, res);
+                    }
+                }).catch((rejected) => {
+                    console.log('REJECTED : ' + rejected);
+                    ErrorHandler.errorHandler(rejected, res);
+                });
+            } else {
+                ErrorHandler.errorHandler({message: 'Aucun login correspondant'}, res);
             }
         }).catch((err) => {
             console.log(`getUserByLogin HAVE FAILED`);
             ErrorHandler.errorHandler(err, res);
         });
-        });
+    });
 
 /**
  * Generate or update the user refresh token in database which will be logged
@@ -40,7 +47,6 @@ function generateAndSaveUserFoundToken(req, res, userFound) {
         const accessToken = generateToken(userFound);
         const refreshToken = jwt.sign({data: userFound}, process.env.REFRESH_TOKEN_SECRET);
         console.log(`====TRYING TO CREATE A NEW TOKEN WITH USER ID : ${userFound.id}===`);
-        Auth.currentUser = userFound;
         UserTokenRepository.createToken(userFound.id, refreshToken).then(() => {
             res.json({ accessToken: accessToken, refreshToken: refreshToken })
         }).catch((err) => {
@@ -66,26 +72,36 @@ function generateAndSaveUserFoundToken(req, res, userFound) {
 /**
  * You this endPoint to recover a new Access-token with passed body token
  */
-authRouter.post('/token', Access.haveAccess(Constants.READ, Constants.T_USER_TOKEN), (req, res) => {
-    console.log(`====TRYING TO REQUEST A NEW ACCESS TOKEN WITH REFRESH TOKEN===`);
-    const refreshToken = req.body.token;
-    if (refreshToken == null) return res.sendStatus(401);
-    UserTokenRepository.getTokenSaved(refreshToken).then((tokenFound) => {
-        if( !tokenFound || tokenFound === null) return res.sendStatus(403);
-        jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
-            if (err) return res.sendStatus(403);
-            const accessToken = generateToken(user.id);
-            res.json({ accessToken: accessToken })
-        })
-    }).catch((err) => {
-        console.log(`/token HAVE FAILED on getTokenSaved`);
-        ErrorHandler.errorHandler(err, res);
+authRouter.route('/api/token/:token')
+    .get(function(req, res){
+        console.log(`====TRYING TO REQUEST A NEW ACCESS TOKEN WITH REFRESH TOKEN===`);
+        const refreshToken = req.params.token;
+        if (refreshToken == null) return res.sendStatus(401);
+        UserTokenRepository.getTokenSaved(refreshToken).then((tokenFound) => {
+            if( !tokenFound || tokenFound === null) return res.sendStatus(403);
+            jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+                if (err) return res.sendStatus(403);
+                const userFound = user.data;
+                UserRolesRepository.getAllPassedUserRoles(userFound.id).then((userRoles) => {
+                    userFound.roles = userRoles;
+                    req.user = userFound;
+                    const accessToken = generateToken(userFound);
+                    res.json({accessToken: accessToken})
+                }).catch((error) => {
+                    console.log('/token HAVE FAILED on getAllPassedUserRoles');
+                    ErrorHandler.errorHandler(error, res);
+                })
+            })
+        }).catch((err) => {
+            console.log(`/token HAVE FAILED on getTokenSaved`);
+            ErrorHandler.errorHandler(err, res);
+        });
     });
-});
 /**
  * EndPoint to logout (delete the refresh token from database )
  */
-authRouter.delete('/logout', Access.haveAccess(Constants.UPDATE, Constants.T_USER_TOKEN), (req, res) => {
+authRouter.route('/api/logout')
+    .delete(Auth.authenticationToken, Access.haveAccess(Constants.UPDATE, Constants.T_USER_TOKEN), function(req, res){
     console.log(`====TRYING TO LOGOUT WITH TOKEN DELETION===`);
     Auth.currentUser = null;
     UserTokenRepository.deleteToken(req.body.token).then(() => {
