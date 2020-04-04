@@ -21,9 +21,18 @@ class GroupRepository {
     static async getGroupByCityName(cityName){
         return await Group.query().select()
             .whereIn('groups.cityId',
-            City.query().select('city.id')
-            .where('city.name', 'like', `%${cityName}%`)
-            .orderBy('city.name'))
+                City.query().select('city.id')
+                    .where('city.name', 'like', `%${cityName}%`)
+                    .orderBy('city.name'))
+            .throwIfNotFound();
+    }
+    static async getGroupByTerms(term){
+        return await Group.query().select()
+            .whereIn('groups.cityId',
+                City.query().select('city.id')
+                    .where('city.name', 'like', `%${term}%`)
+                    .orderBy('city.name'))
+            .orWhere('groups.name', 'like', `%${term}%`)
             .throwIfNotFound();
     }
     static async getGroupByCityId(cityId){

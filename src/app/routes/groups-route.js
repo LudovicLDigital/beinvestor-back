@@ -66,11 +66,24 @@ groupRouter.route('/api/groups/city/of/:group_id')
 groupRouter.route('/api/groups/city/search/:name')
 // get the groups corresponding by cityname
     .get(Auth.authenticationToken, Access.haveAccess(Constants.READ_ALL, Constants.T_GROUP), function(req, res){
-        console.log(`====TRYING TO GET CITY OF THE GROUP BY NAME : ${req.params.name}===`);
-        GroupRepository.getGroupByCityName(req.params.name).then((city) => {
-            res.json(city);
+        console.log(`====TRYING TO GET THE GROUP BY CITY NAME : ${req.params.name}===`);
+        GroupRepository.getGroupByCityName(req.params.name).then((groups) => {
+            res.json(groups);
         }).catch((err) => {
             console.log(`/groups/city/search/:name GET HAVE FAILED`);
+            ErrorHandler.errorHandler(err, res);
+        });
+    });/**
+ * EndPoint to retrieve groups with corresponding terms
+ */
+groupRouter.route('/api/groups/terms/:term')
+// get the groups corresponding by term
+    .get(Auth.authenticationToken, Access.haveAccess(Constants.READ_ALL, Constants.T_GROUP), function(req, res){
+        console.log(`====TRYING TO GET THE GROUP BY TERMS : ${req.params.term}===`);
+        GroupRepository.getGroupByTerms(req.params.term).then((groups) => {
+            res.json(groups);
+        }).catch((err) => {
+            console.log(`/groups/terms/:term GET HAVE FAILED`);
             ErrorHandler.errorHandler(err, res);
         });
     });
@@ -152,7 +165,7 @@ groupRouter.route('/api/groups/current')
         });
     });
 /**
- * EndPoint to recover groups of the current user
+ * EndPoint to act on groups with the current user
  */
 groupRouter.route('/api/groups/current/:group_id')
 // the current logged user join group
