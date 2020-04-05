@@ -105,7 +105,7 @@ authRouter.route('/api/logout')
     console.log(`====TRYING TO LOGOUT WITH TOKEN DELETION===`);
     Auth.currentUser = null;
     UserTokenRepository.deleteToken(req.body.token).then(() => {
-        res.sendStatus(200)
+        res.sendStatus(204)
     }).catch((err) => {
         console.log(`/logout HAVE FAILED`);
         ErrorHandler.errorHandler(err, res);

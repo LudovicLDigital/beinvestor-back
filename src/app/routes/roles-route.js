@@ -31,7 +31,7 @@ roleRouter.route('/api/roles')
     .delete(Auth.authenticationToken, Access.haveAccess(Constants.DELETE_ALL, Constants.T_USER_ROLE), function(req, res){
         console.log(`====TRYING TO DELETE USER-ROLE PASSED IN BODY : ${req.body} ===`);
         UserRolesRepository.deleteARole(req.body.userId, req.body.roleId).then(() => {
-            res.sendStatus(200);
+            res.sendStatus(204);
         }).catch((err) => {
             console.log(`/roles DELETE HAVE FAILED`);
             ErrorHandler.errorHandler(err, res);
@@ -84,7 +84,7 @@ roleRouter.route('/api/roles/:role_id')
     .delete(Auth.authenticationToken, Access.haveAccess(Constants.DELETE, Constants.T_USER_ROLE), function(req, res){
         console.log(`====TRYING TO DELETE PASSED ROLE FOR CURRENT USER : ${req.params.role_id}===`);
         UserRolesRepository.deleteARole(req.user.data.id, req.params.role_id).then(() => {
-            res.sendStatus(200);
+            res.sendStatus(204);
         }).catch((err) => {
             console.log(`/roles/user/role/:role_id DELETE HAVE FAILED`);
             ErrorHandler.errorHandler(err, res);

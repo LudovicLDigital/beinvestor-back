@@ -102,7 +102,7 @@ userRouter.route('/api/users/id/:user_id')
     .delete(Auth.authenticationToken, Access.haveAccess(Constants.DELETE_ALL, Constants.T_USER),  function(req, res){
         console.log(`DELETE USER WITH ID ${req.params.user_id}`);
         UserRepository.deleteUser(req.params.user_id).then(() => {
-            res.sendStatus(200);
+            res.sendStatus(204);
         }).catch((err) => {
             console.log(`/users/id/:user_id DELETE HAVE FAILED`);
             ErrorHandler.errorHandler(err, res);

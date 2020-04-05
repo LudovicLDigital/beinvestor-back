@@ -118,7 +118,7 @@ groupRouter.route('/api/groups/members')
     .delete(Auth.authenticationToken, Access.haveAccess(Constants.DELETE_ALL, Constants.T_USER_GROUP), function (req, res) {
         console.log(`====TRYING DELETE A MEMBER FROM GROUP : ${req.body.groupId}===`);
         UserGroupRepository.deleteAMember(req.body.groupId, req.body.userId).then(() => {
-            res.sendStatus(200);
+            res.sendStatus(204);
         }).catch((err) => {
             console.log(`/groups/members DELETE HAVE FAILED`);
             ErrorHandler.errorHandler(err, res);
@@ -182,7 +182,7 @@ groupRouter.route('/api/groups/current/:group_id')
     .delete(Auth.authenticationToken, Access.haveAccess(Constants.DELETE, Constants.T_USER_GROUP),  function (req, res) {
         console.log(`=====TRYING CURRENT USER TO LEFT GROUP : ${req.params.group_id} ===`);
         UserGroupRepository.deleteAMember(req.params.group_id, req.user.data.id).then(() => {
-            res.sendStatus(200);
+            res.sendStatus(204);
         }).catch((err) => {
             console.log(`/groups/current/:group_id CURRENT USER LEFT GROUP FAILED`);
             ErrorHandler.errorHandler(err, res);
