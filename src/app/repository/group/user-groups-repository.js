@@ -4,7 +4,7 @@ const Constant = require("../../../shared/constants");
 class UserGroupsRepository {
     static async addUserToGroup(groupId, userId){
         const findExisting = await UserGroup.query()
-            .where('groupId', groupId).where('userId', userId);
+            .where('groupId', groupId).where('userInfoId', userId);
         if (!findExisting || findExisting === null || (findExisting && findExisting.length === 0)) {
             return await Group.relatedQuery('members')
                 .for(groupId) // the "from" of "through" relationMapping
@@ -18,15 +18,15 @@ class UserGroupsRepository {
             .for(groupId).throwIfNotFound();
     }
     static async getAllGroupOfUser(userId){
-        const User = require("../../models/user/user");
-        return await User.relatedQuery('groups')
+        const UserInfo = require("../../models/user/user-personal-info");
+        return await UserInfo.relatedQuery('groups')
             .for(userId).throwIfNotFound();
     }
     static async deleteAMember(groupId, userId) {
         return await Group.relatedQuery('members')
             .for(groupId)
             .unrelate()
-            .where('userId', userId).throwIfNotFound();
+            .where('userInfoId', userId).throwIfNotFound();
     }
 }
 module.exports = UserGroupsRepository;

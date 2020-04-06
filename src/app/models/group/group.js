@@ -1,8 +1,7 @@
 const { Model } = require("objection");
 const knexInstance = require("../../../../knexInstance");
-const User = require("../user/user");
+const UserPersonalInfo = require("../user/user-personal-info");
 const City = require("../location/city");
-
 class Group extends Model {
     constructor(name) {
         super();
@@ -16,15 +15,15 @@ class Group extends Model {
         return {
             members: {
                 relation: Model.ManyToManyRelation,
-                modelClass: User,
+                modelClass: UserPersonalInfo,
                 join: {
                     from: 'groups.id',
                     through: {
                         // user_groups is the join table.
                         from: 'user_groups.groupId',
-                        to: 'user_groups.userId'
+                        to: 'user_groups.userInfoId'
                     },
-                    to: 'user.id'
+                    to: 'user_personal_info.id'
                 }
             },
             city: {
