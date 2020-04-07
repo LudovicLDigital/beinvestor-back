@@ -9,6 +9,7 @@ exports.roles = (function() {
         .readOwn(Constants.T_USER_ROLE)
         .readAny(Constants.T_ROLE)
         .readAny(Constants.T_GROUP)
+        .createOwn(Constants.T_GROUP_MESSAGE).deleteOwn(Constants.T_GROUP_MESSAGE).updateOwn(Constants.T_GROUP_MESSAGE).readAny(Constants.T_GROUP_MESSAGE)
         .createOwn(Constants.T_USER_GROUP).deleteOwn(Constants.T_USER_GROUP).readAny(Constants.T_USER_GROUP);
     accessControlInstance.grant(Constants.R_NO_PUB)
         .extend(Constants.R_FREE);
@@ -24,6 +25,7 @@ exports.roles = (function() {
         .createAny(Constants.T_USER_ROLE).updateAny(Constants.T_USER_ROLE).deleteAny(Constants.T_USER_ROLE)
         .createAny(Constants.T_ROLE).updateAny(Constants.T_ROLE).deleteAny(Constants.T_ROLE)
         .createAny(Constants.T_GROUP).updateAny(Constants.T_GROUP).deleteAny(Constants.T_GROUP)
+        .createAny(Constants.T_GROUP_MESSAGE).updateAny(Constants.T_GROUP_MESSAGE).deleteAny(Constants.T_GROUP_MESSAGE)
         .createAny(Constants.T_USER_GROUP).deleteAny(Constants.T_USER_GROUP);
     return accessControlInstance;
 })();

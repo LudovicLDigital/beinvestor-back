@@ -14,6 +14,7 @@ exports.T_USER_INFO = 'user-info';
 exports.T_USER_TOKEN = 'user-token';
 exports.T_USER_ROLE = 'user-roles';
 exports.T_GROUP = 'groups';
+exports.T_GROUP_MESSAGE = 'group_message';
 exports.T_USER_GROUP = 'user-groups';
 // USER STATUS (role)
 exports.R_FREE = 'freeUser';
@@ -32,3 +33,5 @@ exports.ERROR_400_FUNC = function (errorMessage) {
             })
     ));
 };
+// OTHER CONSTANT
+exports.PAGING_ITEM_LIMIT = 15;

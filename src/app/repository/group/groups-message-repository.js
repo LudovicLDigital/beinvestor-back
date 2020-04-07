@@ -1,5 +1,5 @@
 const GroupMessage = require("../../models/group/group-message");
-class GroupRepository {
+class GroupMessageRepository {
     /**
      *
      * @param groupId the id of the group wanted
@@ -7,8 +7,9 @@ class GroupRepository {
      * @returns {Promise<void>} will return an object with {results: is the array of object, total: the length of all row in database}
      */
     static async getAllMessageByGroupId(groupId, pagination){
-        return await GroupMessage.relatedQuery('group')
-            .for(groupId).page(pagination.page, pagination.numberItem).orderBy('created_at').throwIfNotFound();
+        return await GroupMessage.query().select()
+            .where('group_message.groupId', groupId)
+            .page(pagination.page, pagination.numberItem).orderBy('created_at').throwIfNotFound();
     }
 
     /**
@@ -23,40 +24,47 @@ class GroupRepository {
             content: groupMessage.content,
         });
     }
+    static async updateMessage(updatedGroupMessage){
+        updatedGroupMessage.updated_at = new Date();
+        return await GroupMessage.query().updateAndFetchById(updatedGroupMessage.id, updatedGroupMessage)
+            .throwIfNotFound();
+    }
     static async deleteAmessage(messageId){
         return await GroupMessage.query().deleteById(messageId).throwIfNotFound();
     }
     static async getLastGroupMessage(groupId){
         return await GroupMessage.query().select()
-            .max('created_at')
             .where('group_message.groupId', groupId)
+            .whereIn('created_at',
+                GroupMessage.query().select()
+                    .max('created_at')
+                    .where('group_message.groupId', groupId)
+            )
             .throwIfNotFound();
     }
     static async getMessageCountForGroup(groupId){
-        return await GroupMessage.query().select()
-            .count('id')
+        return await GroupMessage.query()
+            .count()
             .where('group_message.groupId', groupId)
+            .first()
             .throwIfNotFound();
     }
     static async getCountForAllMessageOfUser(userInfoId){
-        return await GroupMessage.query().select()
-            .count('id')
+        return await GroupMessage.query()
             .where('group_message.userInfoId', userInfoId)
+            .count()
+            .first()
             .throwIfNotFound();
     }
     static async getCountUserSMessagesInGroup(userInfoId, groupId){
-        return await GroupMessage.query().select()
-            .count('id')
+        return await GroupMessage.query()
+            .count()
             .where({
                 'group_message.userInfoId': userInfoId,
                 'group_message.groupId': groupId
             })
-            .throwIfNotFound();
-    }
-    static async updateMessage(updatedGroupMessage){
-        updatedGroupMessage.updatedAt = new Date();
-        return await GroupMessage.query().updateAndFetchById(updatedGroupMessage.id, updatedGroupMessage)
+            .first()
             .throwIfNotFound();
     }
 }
-module.exports = GroupRepository;
+module.exports = GroupMessageRepository;

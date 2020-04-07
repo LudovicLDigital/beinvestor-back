@@ -9,10 +9,9 @@ class GroupMessage extends Model {
         this.userInfoId = userInfoId;
         this.groupId = groupId;
         this.content = content;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
+        this.created_at = createdAt;
+        this.updated_at = updatedAt;
     }
-
     static get tableName() {
         return "group_message";
     }
