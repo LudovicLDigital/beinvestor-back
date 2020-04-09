@@ -20,6 +20,7 @@ class GroupMessageRepository {
     static async createMessage(groupMessage){
         return await GroupMessage.query().insertGraphAndFetch({
             userInfoId: groupMessage.userInfoId,
+            authorName: groupMessage.authorName,
             groupId: groupMessage.groupId,
             content: groupMessage.content,
         });

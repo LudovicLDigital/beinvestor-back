@@ -3,12 +3,13 @@ const knexInstance = require("../../../../knexInstance");
 const UserPersonalInfo = require("../user/user-personal-info");
 const Group = require("./group");
 class GroupMessage extends Model {
-    constructor(id, userInfoId, groupId, content, createdAt, updatedAt) {
+    constructor(id, userInfoId, groupId, content,authorName, createdAt, updatedAt) {
         super();
         this.id = id;
         this.userInfoId = userInfoId;
         this.groupId = groupId;
         this.content = content;
+        this.authorName = authorName;
         this.created_at = createdAt;
         this.updated_at = updatedAt;
     }
