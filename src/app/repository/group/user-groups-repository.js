@@ -13,6 +13,15 @@ class UserGroupsRepository {
             return Constant.ERROR_400_FUNC('Already in the group');
         }
     }
+    static async userIsInGroup(groupId, userId) {
+        const findExisting = await UserGroup.query()
+            .where('groupId', groupId).where('userInfoId', userId);
+        if (!findExisting || findExisting === null || (findExisting && findExisting.length === 0)) {
+            return Promise.resolve(false);
+        } else {
+            return Promise.resolve(true);
+        }
+    }
     static async getAllMembers(groupId){
         return await Group.relatedQuery('members')
             .for(groupId).throwIfNotFound();

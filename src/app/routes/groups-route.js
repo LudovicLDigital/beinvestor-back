@@ -165,6 +165,20 @@ groupRouter.route('/api/groups/current')
         });
     });
 /**
+ * EndPoint to recover groups of the current user
+ */
+groupRouter.route('/api/groups/current/is-member/:group_id')
+// get all groups of the current logged user
+    .get(Auth.authenticationToken, Access.haveAccess(Constants.READ, Constants.T_USER_GROUP),  function (req, res) {
+        console.log(`=====TRYING TO KNOW IF CURRENT USER IS MEMBER OF GROUP ===`);
+        UserGroupRepository.userIsInGroup(req.params.group_id, req.user.data.id).then((isMember) => {
+            res.json(isMember);
+        }).catch((err) => {
+            console.log(`/groups/current/is-member GET MEMBER STATUS HAVE FAILED, error : ${err}`);
+            ErrorHandler.errorHandler(err, res);
+        });
+    });
+/**
  * EndPoint to act on groups with the current user
  */
 groupRouter.route('/api/groups/current/:group_id')

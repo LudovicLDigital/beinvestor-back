@@ -1,5 +1,6 @@
 const ErrorHandler = require("../../shared/util/error-handler");
 const GroupMessageRepository = require("../repository/group/groups-message-repository");
+const UserGroupRepository = require("../repository/group/user-groups-repository");
 const Auth = require("../../shared/middleware/auth-guard");
 const Access = require("../../shared/middleware/role-guard");
 const groupMessageRouter = require('../../shared/config/router-configurator');
@@ -8,36 +9,48 @@ const SocketManager = require('../../shared/util/socket-manager');
 /** Set default endpoint for groups**/
 groupMessageRouter.route('/api/group-message')
 // create message
-    .post(Auth.authenticationToken, Access.haveAccess(Constants.CREATE, Constants.T_GROUP_MESSAGE), function(req, res){
+    .post(Auth.authenticationToken, Access.haveAccess(Constants.CREATE, Constants.T_GROUP_MESSAGE), async function(req, res){
         console.log(`====TRYING TO CREATE A MESSAGE ===`);
         const messageDatas = {
+            authorName: req.body.authorName,
             content: req.body.content,
             groupId: req.body.groupId,
             userInfoId: req.body.userInfoId
         };
-        SocketManager.emitAMessage(messageDatas);
-        GroupMessageRepository.createMessage(messageDatas).then((message) => {
-            res.status(201).json(message);
-        }).catch((err) => {
-            console.log(`/group-message CREATE HAVE FAILED, error : ${err}`);
-            ErrorHandler.errorHandler(err, res);
-        });
+        const isInGroup = await UserGroupRepository.userIsInGroup(messageDatas.groupId, messageDatas.userInfoId)
+        if (isInGroup) {
+            SocketManager.emitAMessage(messageDatas);
+            GroupMessageRepository.createMessage(messageDatas).then((message) => {
+                res.status(201).json(message);
+            }).catch((err) => {
+                console.log(`/group-message CREATE HAVE FAILED, error : ${err}`);
+                ErrorHandler.errorHandler(err, res);
+            });
+        } else {
+            res.sendStatus(403);
+        }
     })
     // update message
-    .put(Auth.authenticationToken, Access.haveAccess(Constants.UPDATE, Constants.T_GROUP_MESSAGE), function (req, res) {
+    .put(Auth.authenticationToken, Access.haveAccess(Constants.UPDATE, Constants.T_GROUP_MESSAGE), async function (req, res) {
         console.log(`====TRYING UPDATE GROUP MESSAGE ${req.body.id}===`);
         const messageDatas = {
             id: req.body.id,
+            authorName: req.body.authorName,
             content: req.body.content,
             groupId: req.body.groupId,
             userInfoId: req.body.userInfoId
         };
-        GroupMessageRepository.updateMessage(messageDatas).then((message) => {
-            res.json(message);
-        }).catch((err) => {
-            console.log(`/group-message UPDATE HAVE FAILED, error : ${err}`);
-            ErrorHandler.errorHandler(err, res);
-        });
+        const isInGroup = await UserGroupRepository.userIsInGroup(messageDatas.groupId, messageDatas.userInfoId)
+        if (isInGroup) {
+            GroupMessageRepository.updateMessage(messageDatas).then((message) => {
+                res.json(message);
+            }).catch((err) => {
+                console.log(`/group-message UPDATE HAVE FAILED, error : ${err}`);
+                ErrorHandler.errorHandler(err, res);
+            });
+        } else {
+            res.sendStatus(403);
+        }
     })
     .delete(Auth.authenticationToken, Access.haveAccess(Constants.DELETE_ALL, Constants.T_GROUP_MESSAGE), function (req, res) {
         console.log(`====TRYING DELETE MESSAGE PASSED ${req.body.id}===`);

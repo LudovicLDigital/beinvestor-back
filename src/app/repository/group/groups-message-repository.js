@@ -9,7 +9,7 @@ class GroupMessageRepository {
     static async getAllMessageByGroupId(groupId, pagination){
         return await GroupMessage.query().select()
             .where('group_message.groupId', groupId)
-            .page(pagination.page, pagination.numberItem).orderBy('created_at').throwIfNotFound();
+            .page(pagination.page, pagination.numberItem).orderBy('created_at', "desc").throwIfNotFound();
     }
 
     /**
