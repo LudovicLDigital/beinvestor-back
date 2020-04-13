@@ -13,7 +13,7 @@ groupRouter.route('/api/groups')
         GroupRepository.getGroupList().then((groups) => {
             res.json(groups);
         }).catch((err) => {
-            console.log(`/groups GET ALL HAVE FAILED`);
+            console.log(`/groups GET ALL HAVE FAILED , error : ${err}`);
             ErrorHandler.errorHandler(err, res);
         });
     })
@@ -28,7 +28,7 @@ groupRouter.route('/api/groups')
         GroupRepository.updateGroup(groupDatas).then((groups) => {
             res.json(groups);
         }).catch((err) => {
-            console.log(`/groups UPDATE HAVE FAILED`);
+            console.log(`/groups UPDATE HAVE FAILED, error : ${err}`);
             ErrorHandler.errorHandler(err, res);
         });
     })
@@ -42,7 +42,7 @@ groupRouter.route('/api/groups')
         GroupRepository.createGroup(groupDatas).then(() => {
             res.sendStatus(201);
         }).catch((err) => {
-            console.log(`/groups CREATE HAVE FAILED`);
+            console.log(`/groups CREATE HAVE FAILED, error : ${err}`);
             ErrorHandler.errorHandler(err, res);
         });
     });
@@ -56,7 +56,7 @@ groupRouter.route('/api/groups/city/of/:group_id')
         GroupRepository.getCityGroup(req.params.group_id).then((city) => {
             res.json(city);
         }).catch((err) => {
-            console.log(`/groups/city/of/:group_id GET HAVE FAILED`);
+            console.log(`/groups/city/of/:group_id GET HAVE FAILED, error : ${err}`);
             ErrorHandler.errorHandler(err, res);
         });
     });
@@ -70,7 +70,7 @@ groupRouter.route('/api/groups/city/search/:name')
         GroupRepository.getGroupByCityName(req.params.name).then((groups) => {
             res.json(groups);
         }).catch((err) => {
-            console.log(`/groups/city/search/:name GET HAVE FAILED`);
+            console.log(`/groups/city/search/:name GET HAVE FAILED, error : ${err}`);
             ErrorHandler.errorHandler(err, res);
         });
     });/**
@@ -83,7 +83,7 @@ groupRouter.route('/api/groups/terms/:term')
         GroupRepository.getGroupByTerms(req.params.term).then((groups) => {
             res.json(groups);
         }).catch((err) => {
-            console.log(`/groups/terms/:term GET HAVE FAILED`);
+            console.log(`/groups/terms/:term GET HAVE FAILED, error : ${err}`);
             ErrorHandler.errorHandler(err, res);
         });
     });
@@ -97,7 +97,7 @@ groupRouter.route('/api/groups/city/:city_id')
         GroupRepository.getGroupByCityId(req.params.city_id).then((group) => {
             res.json(group);
         }).catch((err) => {
-            console.log(`/groups/city/:city_id GET HAVE FAILED`);
+            console.log(`/groups/city/:city_id GET HAVE FAILED, error : ${err}`);
             ErrorHandler.errorHandler(err, res);
         });
     });
@@ -110,7 +110,7 @@ groupRouter.route('/api/groups/members')
         UserGroupRepository.addUserToGroup(req.body.groupId, req.body.userId).then((created) => {
             res.sendStatus(201);
         }).catch((err) => {
-            console.log(`/groups/members POST HAVE FAILED`);
+            console.log(`/groups/members POST HAVE FAILED, error : ${err}`);
             ErrorHandler.errorHandler(err, res);
         });
     })
@@ -120,7 +120,7 @@ groupRouter.route('/api/groups/members')
         UserGroupRepository.deleteAMember(req.body.groupId, req.body.userId).then(() => {
             res.sendStatus(204);
         }).catch((err) => {
-            console.log(`/groups/members DELETE HAVE FAILED`);
+            console.log(`/groups/members DELETE HAVE FAILED, error : ${err}`);
             ErrorHandler.errorHandler(err, res);
         });
     })
@@ -135,7 +135,7 @@ groupRouter.route('/api/groups/members/:user_id')
         UserGroupRepository.getAllGroupOfUser(req.params.user_id).then((groupsFound) => {
             res.json(groupsFound);
         }).catch((err) => {
-            console.log(`/groups/user/:user_id GET HAVE FAILED`);
+            console.log(`/groups/user/:user_id GET HAVE FAILED, error : ${err}`);
             ErrorHandler.errorHandler(err, res);
         });
     });
@@ -146,7 +146,7 @@ groupRouter.route('/api/groups/members/of/:group_id')
         UserGroupRepository.getAllMembers(req.params.group_id).then((usersFound) => {
             res.json(usersFound);
         }).catch((err) => {
-            console.log(`/groups/members/of/:group_id GET HAVE FAILED`);
+            console.log(`/groups/members/of/:group_id GET HAVE FAILED, error : ${err}`);
             ErrorHandler.errorHandler(err, res);
         });
     });
@@ -160,7 +160,7 @@ groupRouter.route('/api/groups/current')
         UserGroupRepository.getAllGroupOfUser(req.user.data.id).then((groupsFound) => {
             res.json(groupsFound);
         }).catch((err) => {
-            console.log(`/groups/current GET HAVE FAILED`);
+            console.log(`/groups/current GET HAVE FAILED, error : ${err}`);
             ErrorHandler.errorHandler(err, res);
         });
     });
@@ -174,7 +174,7 @@ groupRouter.route('/api/groups/current/:group_id')
         UserGroupRepository.addUserToGroup(req.params.group_id, req.user.data.id).then(() => {
             res.sendStatus(201);
         }).catch((err) => {
-            console.log(`/groups/current/:group_id CURRENT USER JOIN GROUP FAILED`);
+            console.log(`/groups/current/:group_id CURRENT USER JOIN GROUP FAILED, error : ${err}`);
             ErrorHandler.errorHandler(err, res);
         });
     })
@@ -184,7 +184,7 @@ groupRouter.route('/api/groups/current/:group_id')
         UserGroupRepository.deleteAMember(req.params.group_id, req.user.data.id).then(() => {
             res.sendStatus(204);
         }).catch((err) => {
-            console.log(`/groups/current/:group_id CURRENT USER LEFT GROUP FAILED`);
+            console.log(`/groups/current/:group_id CURRENT USER LEFT GROUP FAILED, error : ${err}`);
             ErrorHandler.errorHandler(err, res);
         });
     });

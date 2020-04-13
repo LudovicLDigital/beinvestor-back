@@ -24,7 +24,7 @@ userRouter.route('/api/users')
         UserRepository.getAllUser().then((users) => {
             res.json(users);
         }).catch((err) => {
-            console.log(`/users GET HAVE FAILED`);
+            console.log(`/users GET HAVE FAILED, error : ${err}`);
             ErrorHandler.errorHandler(err, res);
         });
     })
@@ -34,7 +34,7 @@ userRouter.route('/api/users')
         UserRepository.createUser(userDatas).then((user) => {
             res.send(user);
         }).catch((err) => {
-            console.log(`/users POST HAVE FAILED`);
+            console.log(`/users POST HAVE FAILED, error : ${err}`);
             ErrorHandler.errorHandler(err, res);
         });
     })
@@ -44,7 +44,7 @@ userRouter.route('/api/users')
         UserRepository.updateUser(userDatas).then((user) => {
             res.json(user);
         }).catch((err) => {
-            console.log(`/users UPDATE HAVE FAILED`);
+            console.log(`/users UPDATE HAVE FAILED, error : ${err}`);
             ErrorHandler.errorHandler(err, res);
         });
     });
@@ -55,7 +55,7 @@ userRouter.route('/api/users/info/:user_id')
         UserInfoRepository.getUserInfoByUserId(req.params.user_id).then((infos) => {
             res.json(infos);
         }).catch((err) => {
-            console.log(`/users/info/:user_id GET HAVE FAILED`);
+            console.log(`/users/info/:user_id GET HAVE FAILED, error : ${err}`);
             ErrorHandler.errorHandler(err, res);
         });
     });
@@ -71,7 +71,7 @@ userRouter.route('/api/users/current')
                 userInfo: infos
             });
         }).catch((err) => {
-            console.log(`/users/current GET HAVE FAILED`);
+            console.log(`/users/current GET HAVE FAILED, error : ${err}`);
             ErrorHandler.errorHandler(err, res);
         });
     })
@@ -82,7 +82,7 @@ userRouter.route('/api/users/current')
         UserRepository.updateUser(userDatas).then((user) => {
             res.json(user);
         }).catch((err) => {
-            console.log(`/users/current UPDATE HAVE FAILED`);
+            console.log(`/users/current UPDATE HAVE FAILED, error : ${err}`);
             ErrorHandler.errorHandler(err, res);
         });
     });
@@ -95,7 +95,7 @@ userRouter.route('/api/users/id/:user_id')
         UserRepository.getUserById(req.params.user_id).then((userFound) => {
             res.json(userFound);
         }).catch((err) => {
-            console.log(`/users/id/:user_id GET HAVE FAILED`);
+            console.log(`/users/id/:user_id GET HAVE FAILED, error : ${err}`);
             ErrorHandler.errorHandler(err, res);
         });
     })
@@ -104,7 +104,7 @@ userRouter.route('/api/users/id/:user_id')
         UserRepository.deleteUser(req.params.user_id).then(() => {
             res.sendStatus(204);
         }).catch((err) => {
-            console.log(`/users/id/:user_id DELETE HAVE FAILED`);
+            console.log(`/users/id/:user_id DELETE HAVE FAILED, error : ${err}`);
             ErrorHandler.errorHandler(err, res);
         });
     });
@@ -117,7 +117,7 @@ userRouter.route('/api/users/login/:login')
         UserRepository.getUserByLogin(req.params.login).then((userFound) => {
             res.json(userFound);
         }).catch((err) => {
-            console.log(`/users/login/:login GET HAVE FAILED`);
+            console.log(`/users/login/:login GET HAVE FAILED, error : ${err}`);
             ErrorHandler.errorHandler(err, res);
         });
     });

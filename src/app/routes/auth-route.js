@@ -30,7 +30,7 @@ authRouter.route('/api/login')
                 ErrorHandler.errorHandler({message: 'Aucun login correspondant'}, res);
             }
         }).catch((err) => {
-            console.log(`getUserByLogin HAVE FAILED`);
+            console.log(`getUserByLogin HAVE FAILED, error : ${err}`);
             ErrorHandler.errorHandler(err, res);
         });
     });
@@ -55,16 +55,16 @@ function generateAndSaveUserFoundToken(req, res, userFound) {
                 UserTokenRepository.updateToken(userFound.id, refreshToken).then(() => {
                     res.json({ accessToken: accessToken, refreshToken: refreshToken })
                 }).catch((err) => {
-                    console.log(`updateToken HAVE FAILED`);
+                    console.log(`updateToken HAVE FAILED, error : ${err}`);
                     ErrorHandler.errorHandler(err, res);
                 });
             } else {
-                console.log(`/login HAVE FAILED to createToken in db`);
+                console.log(`/login HAVE FAILED to createToken in db, error : ${err}`);
                 ErrorHandler.errorHandler(err, res);
             }
         });
     }).catch((err) => {
-        console.log(`getAllPassedUserRoles HAVE FAILED`);
+        console.log(`getAllPassedUserRoles HAVE FAILED, error : ${err}`);
         ErrorHandler.errorHandler(err, res);
     });
 }
@@ -88,12 +88,12 @@ authRouter.route('/api/token/:token')
                     const accessToken = generateToken(userFound);
                     res.json({accessToken: accessToken})
                 }).catch((error) => {
-                    console.log('/token HAVE FAILED on getAllPassedUserRoles');
+                    console.log('/token HAVE FAILED on getAllPassedUserRoles, error : ${err}');
                     ErrorHandler.errorHandler(error, res);
                 })
             })
         }).catch((err) => {
-            console.log(`/token HAVE FAILED on getTokenSaved`);
+            console.log(`/token HAVE FAILED on getTokenSaved, error : ${err}`);
             ErrorHandler.errorHandler(err, res);
         });
     });
@@ -107,7 +107,7 @@ authRouter.route('/api/logout')
     UserTokenRepository.deleteToken(req.body.token).then(() => {
         res.sendStatus(204)
     }).catch((err) => {
-        console.log(`/logout HAVE FAILED`);
+        console.log(`/logout HAVE FAILED, error : ${err}`);
         ErrorHandler.errorHandler(err, res);
     });
 });

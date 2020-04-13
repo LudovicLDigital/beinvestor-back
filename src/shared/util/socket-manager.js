@@ -24,5 +24,8 @@ const SocketManager = {
             })
         });
     },
+    emitAMessage(groupMessage) {
+        this.ioSocketServer.emit(`sendMessage`, groupMessage); // Envoi un GroupMessage
+    }
 };
 module.exports = SocketManager;
