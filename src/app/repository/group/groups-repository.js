@@ -19,6 +19,9 @@ class GroupRepository {
         return await Group.relatedQuery('city')
             .for(groupId).throwIfNotFound();
     }
+    static async getGroupById(groupId){
+        return await Group.query().findById(groupId).throwIfNotFound();
+    }
     static async getGroupByCityName(cityName, pagination){
         return await Group.query().select()
             .whereIn('groups.cityId',

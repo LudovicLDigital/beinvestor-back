@@ -1,11 +1,20 @@
 const Group = require("../../models/group/group");
 const UserGroup = require("../../models/group/user-groups");
 const Constant = require("../../../shared/constants");
+const GroupRepository = require("./groups-repository");
 class UserGroupsRepository {
     static async addUserToGroup(groupId, userId){
         const findExisting = await UserGroup.query()
             .where('groupId', groupId).where('userInfoId', userId);
         if (!findExisting || findExisting === null || (findExisting && findExisting.length === 0)) {
+            try {
+                const group = await GroupRepository.getGroupById(groupId);
+                group.totalMembers = group.totalMembers + 1;
+                await GroupRepository.updateGroup(group);
+            } catch (e) {
+                console.error('ERROR TO UPDATE TOTAL MEMBERS COUNT');
+                console.error(e);
+            }
             return await Group.relatedQuery('members')
                 .for(groupId) // the "from" of "through" relationMapping
                 .relate(userId); // the "to" of "through" relationMapping
@@ -33,6 +42,14 @@ class UserGroupsRepository {
             .page(pagination.page, pagination.numberItem).throwIfNotFound();
     }
     static async deleteAMember(groupId, userId) {
+        try {
+            const group = await GroupRepository.getGroupById(groupId);
+            group.totalMembers = group.totalMembers - 1;
+            await GroupRepository.updateGroup(group);
+        } catch (e) {
+            console.error('ERROR TO UPDATE TOTAL MEMBERS COUNT');
+            console.error(e);
+        }
         return await Group.relatedQuery('members')
             .for(groupId)
             .unrelate()
