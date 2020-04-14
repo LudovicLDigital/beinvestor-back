@@ -26,10 +26,11 @@ class UserGroupsRepository {
         return await Group.relatedQuery('members')
             .for(groupId).throwIfNotFound();
     }
-    static async getAllGroupOfUser(userId){
+    static async getAllGroupOfUser(userId, pagination){
         const UserInfo = require("../../models/user/user-personal-info");
         return await UserInfo.relatedQuery('groups')
-            .for(userId).throwIfNotFound();
+            .for(userId)
+            .page(pagination.page, pagination.numberItem).throwIfNotFound();
     }
     static async deleteAMember(groupId, userId) {
         return await Group.relatedQuery('members')

@@ -1,8 +1,9 @@
 const Group = require("../../models/group/group");
 const City = require("../../models/location/city");
 class GroupRepository {
-    static async getGroupList(){
-        return await Group.query().select();
+    static async getGroupList(pagination){
+        return await Group.query().select()
+            .page(pagination.page, pagination.numberItem);
     }
     static async updateGroup(groupDatas){
         return await Group.query().updateAndFetchById(groupDatas.id, groupDatas)
@@ -18,21 +19,23 @@ class GroupRepository {
         return await Group.relatedQuery('city')
             .for(groupId).throwIfNotFound();
     }
-    static async getGroupByCityName(cityName){
+    static async getGroupByCityName(cityName, pagination){
         return await Group.query().select()
             .whereIn('groups.cityId',
                 City.query().select('city.id')
                     .where('city.name', 'like', `%${cityName}%`)
                     .orderBy('city.name'))
+            .page(pagination.page, pagination.numberItem)
             .throwIfNotFound();
     }
-    static async getGroupByTerms(term){
+    static async getGroupByTerms(term, pagination){
         return await Group.query().select()
             .whereIn('groups.cityId',
                 City.query().select('city.id')
                     .where('city.name', 'like', `%${term}%`)
                     .orderBy('city.name'))
             .orWhere('groups.name', 'like', `%${term}%`)
+            .page(pagination.page, pagination.numberItem)
             .throwIfNotFound();
     }
     static async getGroupByCityId(cityId){

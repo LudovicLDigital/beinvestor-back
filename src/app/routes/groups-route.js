@@ -6,16 +6,30 @@ const Access = require("../../shared/middleware/role-guard");
 const groupRouter = require('../../shared/config/router-configurator');
 const Constants = require('../../shared/constants');
 /** Set default endpoint for groups**/
-groupRouter.route('/api/groups')
+groupRouter.route('/api/groups/all/:pagination')
 // get all groups of group table
     .get(Auth.authenticationToken, Access.haveAccess(Constants.READ_ALL, Constants.T_GROUP), function (req, res) {
         console.log(`====TRYING GET ALL GROUP===`);
-        GroupRepository.getGroupList().then((groups) => {
-            res.json(groups);
-        }).catch((err) => {
-            console.log(`/groups GET ALL HAVE FAILED , error : ${err}`);
-            ErrorHandler.errorHandler(err, res);
-        });
+        try {
+            const paginationParam = JSON.parse(req.params.pagination);
+            let pagination = {
+                page: 0,
+                numberItem: Constants.PAGING_ITEM_LIMIT
+            };
+            if (paginationParam) {
+                pagination.page = paginationParam.page ? paginationParam.page : 0;
+                pagination.numberItem = paginationParam.numberItem ? paginationParam.numberItem : Constants.PAGING_ITEM_LIMIT;
+            }
+            GroupRepository.getGroupList(pagination).then((groups) => {
+                res.json(groups);
+            }).catch((err) => {
+                console.log(`/groups GET ALL HAVE FAILED , error : ${err}`);
+                ErrorHandler.errorHandler(err, res);
+            });
+        } catch (error) {
+            res.status(500).send(error);
+            console.error(error);
+        }
     })
     // update groups of group table
     .put(Auth.authenticationToken, Access.haveAccess(Constants.UPDATE_ALL, Constants.T_GROUP), function (req, res) {
@@ -63,29 +77,57 @@ groupRouter.route('/api/groups/city/of/:group_id')
 /**
  * EndPoint to retrieve groups with city name
  */
-groupRouter.route('/api/groups/city/search/:name')
+groupRouter.route('/api/groups/city/search/:name/:pagination')
 // get the groups corresponding by cityname
     .get(Auth.authenticationToken, Access.haveAccess(Constants.READ_ALL, Constants.T_GROUP), function(req, res){
         console.log(`====TRYING TO GET THE GROUP BY CITY NAME : ${req.params.name}===`);
-        GroupRepository.getGroupByCityName(req.params.name).then((groups) => {
-            res.json(groups);
-        }).catch((err) => {
-            console.log(`/groups/city/search/:name GET HAVE FAILED, error : ${err}`);
-            ErrorHandler.errorHandler(err, res);
-        });
+        try {
+            const paginationParam = JSON.parse(req.params.pagination);
+            let pagination = {
+                page: 0,
+                numberItem: Constants.PAGING_ITEM_LIMIT
+            };
+            if (paginationParam) {
+                pagination.page = paginationParam.page ? paginationParam.page : 0;
+                pagination.numberItem = paginationParam.numberItem ? paginationParam.numberItem : Constants.PAGING_ITEM_LIMIT;
+            }
+            GroupRepository.getGroupByCityName(req.params.name, pagination).then((groups) => {
+                res.json(groups);
+            }).catch((err) => {
+                console.log(`/groups/city/search/:name GET HAVE FAILED, error : ${err}`);
+                ErrorHandler.errorHandler(err, res);
+            });
+        } catch (error) {
+            res.status(500).send(error);
+            console.error(error);
+        }
     });/**
  * EndPoint to retrieve groups with corresponding terms
  */
-groupRouter.route('/api/groups/terms/:term')
+groupRouter.route('/api/groups/terms/:term/:pagination')
 // get the groups corresponding by term
     .get(Auth.authenticationToken, Access.haveAccess(Constants.READ_ALL, Constants.T_GROUP), function(req, res){
         console.log(`====TRYING TO GET THE GROUP BY TERMS : ${req.params.term}===`);
-        GroupRepository.getGroupByTerms(req.params.term).then((groups) => {
-            res.json(groups);
-        }).catch((err) => {
-            console.log(`/groups/terms/:term GET HAVE FAILED, error : ${err}`);
-            ErrorHandler.errorHandler(err, res);
-        });
+        try {
+            const paginationParam = JSON.parse(req.params.pagination);
+            let pagination = {
+                page: 0,
+                numberItem: Constants.PAGING_ITEM_LIMIT
+            };
+            if (paginationParam) {
+                pagination.page = paginationParam.page ? paginationParam.page : 0;
+                pagination.numberItem = paginationParam.numberItem ? paginationParam.numberItem : Constants.PAGING_ITEM_LIMIT;
+            }
+            GroupRepository.getGroupByTerms(req.params.term, pagination).then((groups) => {
+                res.json(groups);
+            }).catch((err) => {
+                console.log(`/groups/terms/:term GET HAVE FAILED, error : ${err}`);
+                ErrorHandler.errorHandler(err, res);
+            });
+        } catch (error) {
+            res.status(500).send(error);
+            console.error(error);
+        }
     });
 /**
  * EndPoint to retrieve group of a city
@@ -114,7 +156,7 @@ groupRouter.route('/api/groups/members')
             ErrorHandler.errorHandler(err, res);
         });
     })
-// delete a member of the passed group from user_group table
+    // delete a member of the passed group from user_group table
     .delete(Auth.authenticationToken, Access.haveAccess(Constants.DELETE_ALL, Constants.T_USER_GROUP), function (req, res) {
         console.log(`====TRYING DELETE A MEMBER FROM GROUP : ${req.body.groupId}===`);
         UserGroupRepository.deleteAMember(req.body.groupId, req.body.userId).then(() => {
@@ -128,16 +170,30 @@ groupRouter.route('/api/groups/members')
 /**
  * EndPoint to recover the all the groups of the passed user's id
  */
-groupRouter.route('/api/groups/members/:user_id')
+groupRouter.route('/api/groups/member/:user_id/:pagination')
 // get groups of the user from user_group table
     .get(Auth.authenticationToken, Access.haveAccess(Constants.READ_ALL, Constants.T_USER_GROUP), function (req, res) {
         console.log(`====TRYING GET GROUP OF USER ID PASSED ${req.params.user_id}===`);
-        UserGroupRepository.getAllGroupOfUser(req.params.user_id).then((groupsFound) => {
-            res.json(groupsFound);
-        }).catch((err) => {
-            console.log(`/groups/user/:user_id GET HAVE FAILED, error : ${err}`);
-            ErrorHandler.errorHandler(err, res);
-        });
+        try {
+            const paginationParam = JSON.parse(req.params.pagination);
+            let pagination = {
+                page: 0,
+                numberItem: Constants.PAGING_ITEM_LIMIT
+            };
+            if (paginationParam) {
+                pagination.page = paginationParam.page ? paginationParam.page : 0;
+                pagination.numberItem = paginationParam.numberItem ? paginationParam.numberItem : Constants.PAGING_ITEM_LIMIT;
+            }
+            UserGroupRepository.getAllGroupOfUser(req.params.user_id, pagination).then((groupsFound) => {
+                res.json(groupsFound);
+            }).catch((err) => {
+                console.log(`/groups/user/:user_id GET HAVE FAILED, error : ${err}`);
+                ErrorHandler.errorHandler(err, res);
+            });
+        } catch (error) {
+            res.status(500).send(error);
+            console.error(error);
+        }
     });
 groupRouter.route('/api/groups/members/of/:group_id')
 // get members of the passed group from user_group table
@@ -153,16 +209,30 @@ groupRouter.route('/api/groups/members/of/:group_id')
 /**
  * EndPoint to recover groups of the current user
  */
-groupRouter.route('/api/groups/current')
+groupRouter.route('/api/groups/current/:pagination')
 // get all groups of the current logged user
     .get(Auth.authenticationToken, Access.haveAccess(Constants.READ, Constants.T_USER_GROUP),  function (req, res) {
         console.log(`=====TRYING GET GROUP OF CURRENT USER===`);
-        UserGroupRepository.getAllGroupOfUser(req.user.data.id).then((groupsFound) => {
-            res.json(groupsFound);
-        }).catch((err) => {
-            console.log(`/groups/current GET HAVE FAILED, error : ${err}`);
-            ErrorHandler.errorHandler(err, res);
-        });
+        try {
+            const paginationParam = JSON.parse(req.params.pagination);
+            let pagination = {
+                page: 0,
+                numberItem: Constants.PAGING_ITEM_LIMIT
+            };
+            if (paginationParam) {
+                pagination.page = paginationParam.page ? paginationParam.page : 0;
+                pagination.numberItem = paginationParam.numberItem ? paginationParam.numberItem : Constants.PAGING_ITEM_LIMIT;
+            }
+            UserGroupRepository.getAllGroupOfUser(req.user.data.id, pagination).then((groupsFound) => {
+                res.json(groupsFound);
+            }).catch((err) => {
+                console.log(`/groups/current GET HAVE FAILED, error : ${err}`);
+                ErrorHandler.errorHandler(err, res);
+            });
+        } catch (error) {
+            res.status(500).send(error);
+            console.error(error);
+        }
     });
 /**
  * EndPoint to recover groups of the current user
@@ -192,7 +262,7 @@ groupRouter.route('/api/groups/current/:group_id')
             ErrorHandler.errorHandler(err, res);
         });
     })
-// the current logged user left group
+    // the current logged user left group
     .delete(Auth.authenticationToken, Access.haveAccess(Constants.DELETE, Constants.T_USER_GROUP),  function (req, res) {
         console.log(`=====TRYING CURRENT USER TO LEFT GROUP : ${req.params.group_id} ===`);
         UserGroupRepository.deleteAMember(req.params.group_id, req.user.data.id).then(() => {
