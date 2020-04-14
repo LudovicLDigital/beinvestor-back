@@ -62,7 +62,7 @@ groupMessageRouter.route('/api/group-message')
         });
     });
 groupMessageRouter.route('/api/group-message/group/:group_id/:pagination')
-// get the list of message :pagination is an object as {page: number, numberItem: number}
+// get the list of message :pagination is an object as {"page": number, "numberItem": number}
     .get(Auth.authenticationToken, Access.haveAccess(Constants.READ_ALL, Constants.T_GROUP_MESSAGE), function(req, res){
         console.log(`====TRYING TO GET MESSAGES OF THE GROUP : ${req.params.group_id}===`);
         const paginationParam = JSON.parse(req.params.pagination);
