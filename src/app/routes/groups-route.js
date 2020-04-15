@@ -272,4 +272,18 @@ groupRouter.route('/api/groups/current/:group_id')
             ErrorHandler.errorHandler(err, res);
         });
     });
+
+// ============================================GROUP GEOLOCATION INTERACTION ======================================= //
+
+groupRouter.route('/api/groups/load-perimeter')
+// get all groups in 100km passed perimeter
+    .post(Auth.authenticationToken, Access.haveAccess(Constants.READ_ALL, Constants.T_GROUP),  function (req, res) {
+        console.log(`=====TRYING LOAD ONLY GROUPS IN 100KM PERIMETER PASSED IN BODY ===`);
+        GroupRepository.getGroupsInPerimeter({latitude: parseFloat(req.body.latitude), longitude: parseFloat(req.body.longitude)},100).then((groups) => {
+            res.json(groups);
+        }).catch((err) => {
+            console.log(`/groups/load-perimeter GET GROUPS IN PERIMETER FAILED, error : ${err}`);
+            ErrorHandler.errorHandler(err, res);
+        });
+    });
 module.exports = groupRouter;
