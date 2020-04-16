@@ -1,7 +1,5 @@
 const Group = require("../../models/group/group");
 const City = require("../../models/location/city");
-const GeoAdressRepository = require('../location/geo-adress-repository');
-const Geolocater = require('../../../shared/util/geolocater');
 class GroupRepository {
     static async getGroupList(pagination){
         return await Group.query().select()
@@ -49,31 +47,9 @@ class GroupRepository {
             .first()
             .throwIfNotFound();
     }
-
-    /**
-     * get all group in permiter of the passed position with radius distance in km
-     * @param position object which must contain latitude longitude
-     * @param radius in km
-     */
-    static async getGroupsInPerimeter(position, radius) {
-        let perimeterCoords = {
-            latitudeMin: 0,
-            latitudeMax: 0,
-            longitudeMin: 0,
-            longitudeMax: 0,
-        };
-        perimeterCoords = Geolocater.recoverLongitudesLatitudesMax(position, radius);
-        const geoAdressesIds = await GeoAdressRepository.getGeoAdressInAPerimeter(perimeterCoords);
-        const arrayAdressIds = [];
-        geoAdressesIds.forEach((value) => {
-            arrayAdressIds.push(value.id);
-        });
+    static async getGroupsInCitiesIdsArray(citiesId) {
         return await Group.query()
-            .whereIn('groups.cityId',
-                City.query()
-                    .select('city.id')
-                    .whereIn('city.geoAdressId', arrayAdressIds)
-            )
+            .whereIn('groups.cityId', citiesId)
             .throwIfNotFound();
     }
 }

@@ -8,7 +8,7 @@ class GeoAdressRepository {
         return await GeoAdress.query().findById(geoAdressId)
     }
     static async getGeoAdressInAPerimeter(perimeter) {
-        return await GeoAdress.query().select('geo_adress.id')
+        return await GeoAdress.query()
             .whereBetween('geo_adress.latitude', [perimeter.latitudeMin, perimeter.latitudeMax])
             .whereBetween('geo_adress.longitude', [perimeter.longitudeMin, perimeter.longitudeMax])
             .throwIfNotFound()

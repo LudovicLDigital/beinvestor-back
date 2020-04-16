@@ -5,6 +5,9 @@ const Auth = require("../../shared/middleware/auth-guard");
 const Access = require("../../shared/middleware/role-guard");
 const groupRouter = require('../../shared/config/router-configurator');
 const Constants = require('../../shared/constants');
+const GeoAdressRepository = require('../repository/location/geo-adress-repository');
+const CityRepository = require('../repository/location/city-repository');
+const Geolocater = require('../../shared/util/geolocater');
 /** Set default endpoint for groups**/
 groupRouter.route('/api/groups/all/:pagination')
 // get all groups of group table
@@ -277,12 +280,43 @@ groupRouter.route('/api/groups/current/:group_id')
 
 groupRouter.route('/api/groups/load-perimeter')
 // get all groups in 100km passed perimeter
-    .post(Auth.authenticationToken, Access.haveAccess(Constants.READ_ALL, Constants.T_GROUP),  function (req, res) {
+    .post(Auth.authenticationToken, Access.haveAccess(Constants.READ_ALL, Constants.T_GROUP), async function (req, res) {
         console.log(`=====TRYING LOAD ONLY GROUPS IN 100KM PERIMETER PASSED IN BODY ===`);
-        GroupRepository.getGroupsInPerimeter({latitude: parseFloat(req.body.latitude), longitude: parseFloat(req.body.longitude)},100).then((groups) => {
-            res.json(groups);
+        const position = {latitude: parseFloat(req.body.latitude), longitude: parseFloat(req.body.longitude)};
+        const radius = 100;
+        const perimeterCoords = Geolocater.recoverLongitudesLatitudesMax(position, radius);
+        GeoAdressRepository.getGeoAdressInAPerimeter(perimeterCoords).then((geoAdresses) => {
+            const arrayAdressIds = [];
+            geoAdresses.forEach((value) => {
+                arrayAdressIds.push(value.id);
+            });
+            CityRepository.getCitiesInGeoIdsArray(arrayAdressIds).then((cities) => {
+                const arrayCityIds = [];
+                cities.forEach((value) => {
+                    arrayCityIds.push(value.id);
+                });
+                GroupRepository.getGroupsInCitiesIdsArray(arrayCityIds).then((groups) => {
+                    groups.forEach((group) => {
+                        const cityOfGroup = cities.find((city) => city.id === group.cityId);
+                        if (cityOfGroup) {
+                            group.city = cityOfGroup;
+                            const geoAdressOfCity = geoAdresses.find((adress) => adress.id === cityOfGroup.geoAdressId);
+                            if (geoAdressOfCity) {
+                                group.geoCoords = geoAdressOfCity;
+                            }
+                        }
+                    });
+                    res.json(groups);
+                }).catch((err) => {
+                    console.log(`/groups/load-perimeter getGroupsInCitiesIdsArray FAILED, error : ${err}`);
+                    ErrorHandler.errorHandler(err, res);
+                });
+            }).catch((err) => {
+                console.log(`/groups/load-perimeter getCitiesInGeoIdsArray FAILED, error : ${err}`);
+                ErrorHandler.errorHandler(err, res);
+            });
         }).catch((err) => {
-            console.log(`/groups/load-perimeter GET GROUPS IN PERIMETER FAILED, error : ${err}`);
+            console.log(`/groups/load-perimeter getGeoAdressInAPerimeter FAILED, error : ${err}`);
             ErrorHandler.errorHandler(err, res);
         });
     });

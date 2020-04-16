@@ -25,5 +25,10 @@ class CityRepository {
             .first()
             .throwIfNotFound()
     }
+    static async getCitiesInGeoIdsArray(geoAdressIds) {
+       return await City.query()
+            .whereIn('city.geoAdressId', geoAdressIds)
+           .throwIfNotFound()
+    }
 }
 module.exports = CityRepository;
