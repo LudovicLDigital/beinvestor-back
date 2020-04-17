@@ -2,9 +2,9 @@ const { Model } = require("objection");
 const knexInstance = require("../../../../knexInstance");
 
 class UserGroups extends Model {
-    constructor(userId, groupId, joinedDate) {
+    constructor(userInfoId, groupId, joinedDate) {
         super();
-        this.userId = userId;
+        this.userInfoId = userInfoId;
         this.groupId = groupId;
         this.joinedDate = joinedDate;
     }
