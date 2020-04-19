@@ -6,16 +6,15 @@ const Auth = require("../../shared/middleware/auth-guard");
 const Access = require("../../shared/middleware/role-guard");
 const Constants = require("../../shared/constants");
 function prepareUserDatas(req) {
-    return {
+    const user = {
         id: req.body.id,
         login: req.body.login,
         password: req.body.password,
         mail: req.body.mail,
         phone: req.body.phone,
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        birthDate: req.body.birthDate,
     };
+    user.userInfo = req.body.userInfo ? req.body.userInfo : null;
+    return user;
 }
 /** Set default endpoint for users **/
 userRouter.route('/api/users')
@@ -76,7 +75,7 @@ userRouter.route('/api/users/current')
         });
     })
     .put(Auth.authenticationToken, Access.haveAccess(Constants.UPDATE, Constants.T_USER),  function(req, res){
-        console.log(`UPDATE CURRENT USER`);
+        console.log(`==============UPDATE CURRENT USER================`);
         req.body.id = req.user.data.id;
         const userDatas = prepareUserDatas(req);
         UserRepository.updateUser(userDatas).then((user) => {

@@ -25,14 +25,30 @@ class UserRepository {
         return await User.query().where('login', login).throwIfNotFound();
     }
     static async updateUser(userDatas){
-        const hashedPassword = await PasswordCrypter.cryptPassword(userDatas.password);
         const updateUser = new User();
         updateUser.id = userDatas.id;
         updateUser.login = userDatas.login;
-        updateUser.password = hashedPassword;
+        if (userDatas.password) {
+            const hashedPassword = await PasswordCrypter.cryptPassword(userDatas.password);
+            updateUser.password = hashedPassword;
+        }
         updateUser.mail = userDatas.mail;
         updateUser.phone = userDatas.phone;
-        return await User.query().updateAndFetchById(updateUser.id, updateUser).throwIfNotFound();
+        updateUser.updated_at = new Date();
+        if(userDatas.userInfo === null) {
+            return await User.query().updateAndFetchById(updateUser.id, updateUser).throwIfNotFound();
+        } else {
+            const user = await User.query().updateAndFetchById(updateUser.id, updateUser).throwIfNotFound();
+            return new Promise((resolve, reject) => {
+                UserPersonalInfoRepo.updateUserInfo(userDatas.userInfo).then((userInfo) => {
+                    const data = {
+                        user: user,
+                        userInfo: userInfo
+                    };
+                    resolve(data);
+                }).catch((onError) => reject(onError));
+            });
+        }
     }
     static async deleteUser(userId) {
         return await User.query().deleteById(userId).throwIfNotFound();
