@@ -1,7 +1,7 @@
 
 exports.up = function(knex) {
     return knex.schema.table("groups", table => {
-        table.foreign("cityId", "fk_group_city").references("city.id").onDelete('CASCADE');
+        table.foreign("cityId", "fk_group_city").references("city.id");
     });
 };
 

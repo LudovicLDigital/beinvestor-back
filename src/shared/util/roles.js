@@ -10,6 +10,7 @@ exports.roles = (function() {
         .readAny(Constants.T_ROLE)
         .readAny(Constants.T_GROUP)
         .readAny(Constants.T_CITY)
+        .readAny(Constants.T_PICTURE).updateOwn(Constants.T_PICTURE).deleteOwn(Constants.T_PICTURE).createOwn(Constants.T_PICTURE)
         .readAny(Constants.T_GEO_ADRESS).createOwn(Constants.T_GEO_ADRESS).updateOwn(Constants.T_GEO_ADRESS).deleteOwn(Constants.T_GEO_ADRESS)
         .createOwn(Constants.T_GROUP_MESSAGE).deleteOwn(Constants.T_GROUP_MESSAGE).updateOwn(Constants.T_GROUP_MESSAGE).readAny(Constants.T_GROUP_MESSAGE)
         .createOwn(Constants.T_USER_GROUP).deleteOwn(Constants.T_USER_GROUP).readAny(Constants.T_USER_GROUP);

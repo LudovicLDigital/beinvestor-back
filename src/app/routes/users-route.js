@@ -8,6 +8,9 @@ const Constants = require("../../shared/constants");
 const PasswordCrypter = require("../../shared/util/password-crypter");
 const MailSender = require("../../shared/util/mail-sender");
 const TokenSaver = require("../../shared/util/token-saver");
+const PictureRepository = require("../repository/picture-repository");
+const Picture = require("../models/picture");
+const FileSaver = require("../../shared/util/file-saver");
 function prepareUserDatas(req) {
     const user = {
         id: req.body.id,
@@ -142,6 +145,64 @@ userRouter.route('/api/users/change-password')
         }).catch((rejected) => {
             console.log('REJECTED : ' + rejected);
             ErrorHandler.errorHandler(rejected, res);
+        });
+    });
+userRouter.route('/api/users/save-profil-pic')
+    .post(Auth.authenticationToken, Access.haveAccess(Constants.CREATE, Constants.T_PICTURE), function (req, res) {
+        console.log(`===TRYING TO SAVE PICTURE OF USER : ${req.user.data.id}===`);
+        let upload = FileSaver.saveImage(req, Constants.USER_PIC + '-' + req.user.data.id + '-' + req.user.data.login);
+        upload(req, res, function(err) {
+            if (err) {
+                console.log('Error to upload');
+                ErrorHandler.errorHandler(err, res);
+            } else if (!req.file) {
+                console.log('No available file');
+                ErrorHandler.errorHandler({message: 'NO FILE'}, res);
+            } else {
+                const pictureToSave = new Picture(null,req.file.path, req.file.filename);
+                PictureRepository.saveImageDatas(pictureToSave, Constants.USER_PIC, req.file).then((pictureSaved) => {
+                    UserInfoRepository.getUserInfoByUserId(req.user.data.id).then((userInfo) => {
+                        console.log(userInfo)
+                        UserInfoRepository.linkPicture(pictureSaved, userInfo.id).then(() => {
+                            res.json(pictureSaved)
+                        }).catch((error) => {
+                            console.log('Error to linkPicture : ' + error);
+                            ErrorHandler.errorHandler(error, res);
+                        });
+                    }).catch((error) => {
+                        console.log('Error to getUserInfoByUserId : ' + error);
+                        ErrorHandler.errorHandler(error, res);
+                    });
+                }).catch((error) => {
+                    console.log('Error to  saveImageDatas : ' + error);
+                    ErrorHandler.errorHandler(error, res);
+                });
+            }
+        })
+    });
+userRouter.route('/api/users/current/profil-pic')
+    .get(Auth.authenticationToken, Access.haveAccess(Constants.READ, Constants.T_PICTURE), function (req, res) {
+        console.log(`===TRYING TO GET CURRENT USER's PICTURE : ${req.user.data.id}===`);
+        UserInfoRepository.getUserInfoByUserId(req.user.data.id).then((userInfo) => {
+            PictureRepository.getPictureById(userInfo.profilPicId).then((pictureFound) => {
+                res.sendFile(process.env.SERVER_ROOT + '/'+ pictureFound.path)
+            }).catch((error) => {
+                console.log('Error to getPictureById : ' + error);
+                ErrorHandler.errorHandler(error, res);
+            });
+        }).catch((error) => {
+            console.log('Error to getUserInfoByUserId : ' + error);
+            ErrorHandler.errorHandler(error, res);
+        });
+    });
+userRouter.route('/api/users/profil-pic/:id')
+    .get(Auth.authenticationToken, Access.haveAccess(Constants.READ_ALL, Constants.T_PICTURE), function (req, res) {
+        console.log(`===TRYING TO GET USER PICTURE WITH ID : ${req.params.id}===`);
+        PictureRepository.getPictureById(req.params.id).then((pictureFound) => {
+            res.sendFile(process.env.SERVER_ROOT + '/'+ pictureFound.path)
+        }).catch((error) => {
+            console.log('Error to getPictureById : ' + error);
+            ErrorHandler.errorHandler(error, res);
         });
     });
 module.exports = userRouter;
