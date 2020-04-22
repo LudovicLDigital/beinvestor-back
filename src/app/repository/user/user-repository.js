@@ -24,14 +24,20 @@ class UserRepository {
     static async getUserByLogin(login){
         return await User.query().where('login', login).throwIfNotFound();
     }
+    static async changeUserPassword(newPassword, userId) {
+        const updateUser = new User();
+        if (newPassword && newPassword !== null && newPassword.trim() !== '') {
+            updateUser.id = userId;
+            updateUser.password = await PasswordCrypter.cryptPassword(newPassword);
+            return await User.query().updateAndFetchById(userId, updateUser).throwIfNotFound();
+        } else {
+            throw 'NO PASSWORD VALID';
+        }
+    }
     static async updateUser(userDatas){
         const updateUser = new User();
         updateUser.id = userDatas.id;
         updateUser.login = userDatas.login;
-        if (userDatas.password) {
-            const hashedPassword = await PasswordCrypter.cryptPassword(userDatas.password);
-            updateUser.password = hashedPassword;
-        }
         updateUser.mail = userDatas.mail;
         updateUser.phone = userDatas.phone;
         updateUser.updated_at = new Date();

@@ -35,5 +35,7 @@ exports.ERROR_400_FUNC = function (errorMessage) {
             })
     ));
 };
+// MAILS FILES
+exports.MAIL_PASS_CHANGED = 'mail-password-changed';
 // OTHER CONSTANT
 exports.PAGING_ITEM_LIMIT = 15;

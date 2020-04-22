@@ -5,6 +5,9 @@ const ErrorHandler = require("../../shared/util/error-handler");
 const Auth = require("../../shared/middleware/auth-guard");
 const Access = require("../../shared/middleware/role-guard");
 const Constants = require("../../shared/constants");
+const PasswordCrypter = require("../../shared/util/password-crypter");
+const MailSender = require("../../shared/util/mail-sender");
+const TokenSaver = require("../../shared/util/token-saver");
 function prepareUserDatas(req) {
     const user = {
         id: req.body.id,
@@ -118,6 +121,27 @@ userRouter.route('/api/users/login/:login')
         }).catch((err) => {
             console.log(`/users/login/:login GET HAVE FAILED, error : ${err}`);
             ErrorHandler.errorHandler(err, res);
+        });
+    });
+userRouter.route('/api/users/change-password')
+    .post(Auth.authenticationToken, Access.haveAccess(Constants.UPDATE, Constants.T_USER), function (req, res) {
+        console.log(`===TRYING TO CHANGE PASSWORD OF USER : ${req.user.data.id}===`);
+        PasswordCrypter.comparePassword(req.user.data.password, req.body.password).then((match) => {
+            if (match) {
+                UserRepository.changeUserPassword(req.body.newPassword, req.user.data.id).then((userUpdated) => {
+                    const mailSubject = 'Changement de votre mot de passe BeInvestor';
+                    MailSender.sendAnAppMail(userUpdated.mail, mailSubject, Constants.MAIL_PASS_CHANGED, {login: req.user.data.login, subject: mailSubject});
+                    TokenSaver.generateAndSaveUserFoundToken(req, res, userUpdated);
+                }).catch((rejected) => {
+                    console.log('REJECTED : ' + rejected);
+                    ErrorHandler.errorHandler(rejected, res);
+                });
+            } else {
+                res.send(false);
+            }
+        }).catch((rejected) => {
+            console.log('REJECTED : ' + rejected);
+            ErrorHandler.errorHandler(rejected, res);
         });
     });
 module.exports = userRouter;
