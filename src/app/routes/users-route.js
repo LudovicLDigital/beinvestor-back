@@ -154,15 +154,16 @@ userRouter.route('/api/users/save-profil-pic')
         upload(req, res, function(err) {
             if (err) {
                 console.log('Error to upload');
+                console.error(err);
                 ErrorHandler.errorHandler(err, res);
             } else if (!req.file) {
                 console.log('No available file');
+                console.error(err);
                 ErrorHandler.errorHandler({message: 'NO FILE'}, res);
             } else {
                 const pictureToSave = new Picture(null,req.file.path, req.file.filename);
                 PictureRepository.saveImageDatas(pictureToSave, Constants.USER_PIC, req.file).then((pictureSaved) => {
                     UserInfoRepository.getUserInfoByUserId(req.user.data.id).then((userInfo) => {
-                        console.log(userInfo)
                         UserInfoRepository.linkPicture(pictureSaved, userInfo.id).then(() => {
                             res.json(pictureSaved)
                         }).catch((error) => {
@@ -185,7 +186,11 @@ userRouter.route('/api/users/current/profil-pic')
         console.log(`===TRYING TO GET CURRENT USER's PICTURE : ${req.user.data.id}===`);
         UserInfoRepository.getUserInfoByUserId(req.user.data.id).then((userInfo) => {
             PictureRepository.getPictureById(userInfo.profilPicId).then((pictureFound) => {
-                res.sendFile(process.env.SERVER_ROOT + '/'+ pictureFound.path)
+                if (pictureFound) {
+                    res.sendFile(process.env.SERVER_ROOT + '/' + pictureFound.path)
+                } else {
+                    res.status(404).json({message: "No profil picture"});
+                }
             }).catch((error) => {
                 console.log('Error to getPictureById : ' + error);
                 ErrorHandler.errorHandler(error, res);
