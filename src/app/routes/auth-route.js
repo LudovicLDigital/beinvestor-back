@@ -39,14 +39,15 @@ authRouter.route('/api/login')
 /**
  * You this endPoint to recover a new Access-token with passed body token
  */
-authRouter.route('/api/token/:token')
-    .get(function(req, res){
+authRouter.route('/api/token')
+    .post(function(req, res){
         console.log(`====TRYING TO REQUEST A NEW ACCESS TOKEN WITH REFRESH TOKEN===`);
-        const refreshToken = req.params.token;
+        const refreshToken = req.body.token;
         if (refreshToken == null) return res.sendStatus(401);
-        UserTokenRepository.getTokenSaved(refreshToken).then((tokenFound) => {
+        const token = refreshToken.replace(/"/g, '');
+        UserTokenRepository.getTokenSaved(token).then((tokenFound) => {
             if( !tokenFound || tokenFound === null) return res.sendStatus(403);
-            jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+            jwt.verify(tokenFound.refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
                 if (err) return res.sendStatus(403);
                 const userFound = user.data;
                 UserRolesRepository.getAllPassedUserRoles(userFound.id).then((userRoles) => {
@@ -68,14 +69,15 @@ authRouter.route('/api/token/:token')
  * EndPoint to logout (delete the refresh token from database )
  */
 authRouter.route('/api/logout')
-    .delete(Auth.authenticationToken, Access.haveAccess(Constants.UPDATE, Constants.T_USER_TOKEN), function(req, res){
-    console.log(`====TRYING TO LOGOUT WITH TOKEN DELETION===`);
-    Auth.currentUser = null;
-    UserTokenRepository.deleteToken(req.body.token).then(() => {
-        res.sendStatus(204)
-    }).catch((err) => {
-        console.log(`/logout HAVE FAILED, error : ${err}`);
-        ErrorHandler.errorHandler(err, res);
+    .delete(Auth.authenticationToken, Access.haveAccess(Constants.DELETE, Constants.T_USER_TOKEN), function(req, res){
+        console.log(`====TRYING TO LOGOUT WITH TOKEN DELETION===`);
+        Auth.currentUser = null;
+        const token = req.body.token.replace(/"/g, '');
+        UserTokenRepository.deleteToken(token).then(() => {
+            res.sendStatus(204)
+        }).catch((err) => {
+            console.log(`/logout HAVE FAILED, error : ${err}`);
+            ErrorHandler.errorHandler(err, res);
+        });
     });
-});
 module.exports = authRouter;

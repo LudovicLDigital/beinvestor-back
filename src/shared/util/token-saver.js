@@ -12,15 +12,19 @@ const TokenSaver = {
     generateAndSaveUserFoundToken(req, res, userFound) {
         UserRolesRepository.getAllPassedUserRoles(userFound.id).then((userRoles) => {
             userFound.roles = userRoles;
-            const accessToken = TokenSaver.generateToken(userFound);
-            const refreshToken = jwt.sign({data: userFound}, process.env.REFRESH_TOKEN_SECRET);
+            let accessToken = TokenSaver.generateToken(userFound);
+            let refreshToken = jwt.sign({data: userFound}, process.env.REFRESH_TOKEN_SECRET);
             console.log(`====TRYING TO CREATE A NEW TOKEN WITH USER ID : ${userFound.id}===`);
             UserTokenRepository.createToken(userFound.id, refreshToken).then(() => {
+                refreshToken = refreshToken.replace(/"/g, '');
+                accessToken = accessToken.replace(/"/g, '');
                 res.json({accessToken: accessToken, refreshToken: refreshToken})
             }).catch((err) => {
                 if (err && err.constraint === 'userId_is_unique') {
                     console.log(`====USERID EXISTING IN DB, TRYING TO UPDATE TOKEN NOW===`);
                     UserTokenRepository.updateToken(userFound.id, refreshToken).then(() => {
+                        refreshToken = refreshToken.replace(/"/g, '');
+                        accessToken = accessToken.replace(/"/g, '');
                         res.json({accessToken: accessToken, refreshToken: refreshToken})
                     }).catch((err) => {
                         console.log(`updateToken HAVE FAILED, error : ${err}`);
