@@ -47,7 +47,7 @@ authRouter.route('/api/token')
         const token = refreshToken.replace(/"/g, '');
         UserTokenRepository.getTokenSaved(token).then((tokenFound) => {
             if( !tokenFound || tokenFound === null) return res.sendStatus(403);
-            jwt.verify(tokenFound.refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+            jwt.verify(token, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
                 if (err) return res.sendStatus(403);
                 const userFound = user.data;
                 UserRolesRepository.getAllPassedUserRoles(userFound.id).then((userRoles) => {
