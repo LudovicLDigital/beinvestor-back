@@ -22,5 +22,8 @@ class UserPersonalInfoRepository {
         updateInfos.userId = infoDatas.userId;
         return await UserPersonalInfo.query().updateAndFetchById(updateInfos.id, updateInfos).throwIfNotFound();
     }
+    static async linkPicture(pic, userId){
+        return await UserPersonalInfo.relatedQuery('picture').for(userId).relate(pic.id);
+    }
 }
 module.exports = UserPersonalInfoRepository;

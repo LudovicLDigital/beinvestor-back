@@ -8,6 +8,7 @@ class UserPersonalInfo extends Model {
     static get relationMappings() {
         const User = require("./user");
         const Group = require("../group/group");
+        const Picture = require("../picture");
         return {
             user: {
                 relation: Model.BelongsToOneRelation,
@@ -15,6 +16,14 @@ class UserPersonalInfo extends Model {
                 join: {
                     from: 'user.id',
                     to: 'user_personal_info.user_id'
+                },
+            },
+            picture: {
+                relation: Model.BelongsToOneRelation,
+                modelClass: Picture,
+                join: {
+                    from: 'picture.id',
+                    to: 'user_personal_info.profilPicId'
                 },
             },
             groups: {

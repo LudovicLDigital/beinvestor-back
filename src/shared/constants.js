@@ -18,6 +18,7 @@ exports.T_GROUP_MESSAGE = 'group_message';
 exports.T_USER_GROUP = 'user-groups';
 exports.T_CITY = 'city';
 exports.T_GEO_ADRESS = 'geo_adress';
+exports.T_PICTURE = 'picture';
 // USER STATUS (role)
 exports.R_FREE = 'freeUser';
 exports.R_NO_PUB = 'freeNoPub';
@@ -35,5 +36,9 @@ exports.ERROR_400_FUNC = function (errorMessage) {
             })
     ));
 };
+// MAILS FILES
+exports.MAIL_PASS_CHANGED = 'mail-password-changed';
+// FILES DIRECTORIES NAME
+exports.USER_PIC = 'user-profil-picture';
 // OTHER CONSTANT
 exports.PAGING_ITEM_LIMIT = 15;

@@ -1,6 +1,7 @@
 node_modules
 build
 npm-debug.log
+files
 .env
 .DS_Store
 .idea

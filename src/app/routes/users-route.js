@@ -5,17 +5,22 @@ const ErrorHandler = require("../../shared/util/error-handler");
 const Auth = require("../../shared/middleware/auth-guard");
 const Access = require("../../shared/middleware/role-guard");
 const Constants = require("../../shared/constants");
+const PasswordCrypter = require("../../shared/util/password-crypter");
+const MailSender = require("../../shared/util/mail-sender");
+const TokenSaver = require("../../shared/util/token-saver");
+const PictureRepository = require("../repository/picture-repository");
+const Picture = require("../models/picture");
+const FileSaver = require("../../shared/util/file-saver");
 function prepareUserDatas(req) {
-    return {
+    const user = {
         id: req.body.id,
         login: req.body.login,
         password: req.body.password,
         mail: req.body.mail,
         phone: req.body.phone,
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        birthDate: req.body.birthDate,
     };
+    user.userInfo = req.body.userInfo ? req.body.userInfo : null;
+    return user;
 }
 /** Set default endpoint for users **/
 userRouter.route('/api/users')
@@ -76,7 +81,7 @@ userRouter.route('/api/users/current')
         });
     })
     .put(Auth.authenticationToken, Access.haveAccess(Constants.UPDATE, Constants.T_USER),  function(req, res){
-        console.log(`UPDATE CURRENT USER`);
+        console.log(`==============UPDATE CURRENT USER================`);
         req.body.id = req.user.data.id;
         const userDatas = prepareUserDatas(req);
         UserRepository.updateUser(userDatas).then((user) => {
@@ -119,6 +124,90 @@ userRouter.route('/api/users/login/:login')
         }).catch((err) => {
             console.log(`/users/login/:login GET HAVE FAILED, error : ${err}`);
             ErrorHandler.errorHandler(err, res);
+        });
+    });
+userRouter.route('/api/users/change-password')
+    .post(Auth.authenticationToken, Access.haveAccess(Constants.UPDATE, Constants.T_USER), function (req, res) {
+        console.log(`===TRYING TO CHANGE PASSWORD OF USER : ${req.user.data.id}===`);
+        PasswordCrypter.comparePassword(req.user.data.password, req.body.password).then((match) => {
+            if (match) {
+                UserRepository.changeUserPassword(req.body.newPassword, req.user.data.id).then((userUpdated) => {
+                    const mailSubject = 'Changement de votre mot de passe BeInvestor';
+                    MailSender.sendAnAppMail(userUpdated.mail, mailSubject, Constants.MAIL_PASS_CHANGED, {login: req.user.data.login, subject: mailSubject});
+                    TokenSaver.generateAndSaveUserFoundToken(req, res, userUpdated);
+                }).catch((rejected) => {
+                    console.log('REJECTED : ' + rejected);
+                    ErrorHandler.errorHandler(rejected, res);
+                });
+            } else {
+                res.send(false);
+            }
+        }).catch((rejected) => {
+            console.log('REJECTED : ' + rejected);
+            ErrorHandler.errorHandler(rejected, res);
+        });
+    });
+userRouter.route('/api/users/save-profil-pic')
+    .post(Auth.authenticationToken, Access.haveAccess(Constants.CREATE, Constants.T_PICTURE), function (req, res) {
+        console.log(`===TRYING TO SAVE PICTURE OF USER : ${req.user.data.id}===`);
+        let upload = FileSaver.saveImage(req, Constants.USER_PIC + '-' + req.user.data.id + '-' + req.user.data.login);
+        upload(req, res, function(err) {
+            if (err) {
+                console.log('Error to upload');
+                console.error(err);
+                ErrorHandler.errorHandler(err, res);
+            } else if (!req.file) {
+                console.log('No available file');
+                console.error(err);
+                ErrorHandler.errorHandler({message: 'NO FILE'}, res);
+            } else {
+                const pictureToSave = new Picture(null,req.file.path, req.file.filename);
+                PictureRepository.saveImageDatas(pictureToSave, Constants.USER_PIC, req.file).then((pictureSaved) => {
+                    UserInfoRepository.getUserInfoByUserId(req.user.data.id).then((userInfo) => {
+                        UserInfoRepository.linkPicture(pictureSaved, userInfo.id).then(() => {
+                            res.json(pictureSaved)
+                        }).catch((error) => {
+                            console.log('Error to linkPicture : ' + error);
+                            ErrorHandler.errorHandler(error, res);
+                        });
+                    }).catch((error) => {
+                        console.log('Error to getUserInfoByUserId : ' + error);
+                        ErrorHandler.errorHandler(error, res);
+                    });
+                }).catch((error) => {
+                    console.log('Error to  saveImageDatas : ' + error);
+                    ErrorHandler.errorHandler(error, res);
+                });
+            }
+        })
+    });
+userRouter.route('/api/users/current/profil-pic')
+    .get(Auth.authenticationToken, Access.haveAccess(Constants.READ, Constants.T_PICTURE), function (req, res) {
+        console.log(`===TRYING TO GET CURRENT USER's PICTURE : ${req.user.data.id}===`);
+        UserInfoRepository.getUserInfoByUserId(req.user.data.id).then((userInfo) => {
+            PictureRepository.getPictureById(userInfo.profilPicId).then((pictureFound) => {
+                if (pictureFound) {
+                    res.sendFile(process.env.SERVER_ROOT + '/' + pictureFound.path)
+                } else {
+                    res.status(404).json({message: "No profil picture"});
+                }
+            }).catch((error) => {
+                console.log('Error to getPictureById : ' + error);
+                ErrorHandler.errorHandler(error, res);
+            });
+        }).catch((error) => {
+            console.log('Error to getUserInfoByUserId : ' + error);
+            ErrorHandler.errorHandler(error, res);
+        });
+    });
+userRouter.route('/api/users/profil-pic/:id')
+    .get(Auth.authenticationToken, Access.haveAccess(Constants.READ_ALL, Constants.T_PICTURE), function (req, res) {
+        console.log(`===TRYING TO GET USER PICTURE WITH ID : ${req.params.id}===`);
+        PictureRepository.getPictureById(req.params.id).then((pictureFound) => {
+            res.sendFile(process.env.SERVER_ROOT + '/'+ pictureFound.path)
+        }).catch((error) => {
+            console.log('Error to getPictureById : ' + error);
+            ErrorHandler.errorHandler(error, res);
         });
     });
 module.exports = userRouter;

@@ -8,13 +8,13 @@ class UserTokenRepository {
         return userToken;
     }
     static async getTokenSaved(tokenSearched){
-        return await UserToken.query().where('refreshToken', tokenSearched).throwIfNotFound();
+        return await UserToken.query().select().where('refreshToken', 'LIKE', tokenSearched).throwIfNotFound();
     }
     static async updateToken(userId, newRefreshedToken){
         const userToken = await UserToken.query().select().where('userId', userId).first();
         userToken.refreshToken = newRefreshedToken;
         userToken.updated_at = new Date();
-        return await UserToken.query().updateAndFetchById(userToken.id, userToken).throwIfNotFound();
+        return await UserToken.query().update(userToken).where('id', userToken.id).throwIfNotFound();
     }
     static async deleteToken(tokenToDelete) {
         return await UserToken.query().delete().where('refreshToken', tokenToDelete).throwIfNotFound();
