@@ -4,14 +4,16 @@ const UserRolesRepository = require('../roles/user-roles-repository');
 const PasswordCrypter = require('../../../shared/util/password-crypter');
 class UserRepository {
     static async createUser(userDatas){
-         const hashedPassword = await PasswordCrypter.cryptPassword(userDatas.password);
-         const userSaved = await User.query().insertGraph({
+        const hashedPassword = await PasswordCrypter.cryptPassword(userDatas.password);
+        const userSaved = await User.query().insertGraph({
             login: userDatas.login,
             password: hashedPassword,
             mail: userDatas.mail,
-            phone: userDatas.phone
+            phone: userDatas.phone,
+            activated: false,
+            activationCode: userDatas.activationCode,
         });
-        await UserPersonalInfoRepo.createUserInfo(userDatas, userSaved.id);
+        await UserPersonalInfoRepo.createUserInfo(userDatas.userInfo, userSaved.id);
         await UserRolesRepository.createUserRole(userSaved.id, 1);
         return userSaved;
     }
@@ -22,7 +24,13 @@ class UserRepository {
         return await User.query().findById(userId).throwIfNotFound();
     }
     static async getUserByLogin(login){
-        return await User.query().where('login', login).throwIfNotFound();
+        return await User.query().where('login', login).first().throwIfNotFound();
+    }
+    static async getUserByActivationKey(activationKey) {
+        return await User.query().where('activationCode', activationKey).first().throwIfNotFound();
+    }
+    static async getUserByMail(mail) {
+        return await User.query().where('mail', mail).first().throwIfNotFound();
     }
     static async changeUserPassword(newPassword, userId) {
         const updateUser = new User();
@@ -55,6 +63,16 @@ class UserRepository {
                 }).catch((onError) => reject(onError));
             });
         }
+    }
+    static async activateUserAccount(userToActivate) {
+        userToActivate.activationCode = null;
+        userToActivate.activated = true;
+        userToActivate.updated_at = new Date();
+        return await User.query().updateAndFetchById(userToActivate.id, userToActivate).throwIfNotFound();
+    }
+    static async updateActivationKey(userWithCode) {
+        userWithCode.updated_at = new Date();
+        return await User.query().updateAndFetchById(userWithCode.id, userWithCode).throwIfNotFound();
     }
     static async deleteUser(userId) {
         return await User.query().deleteById(userId).throwIfNotFound();

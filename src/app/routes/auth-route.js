@@ -9,6 +9,8 @@ const Constants = require("../../shared/constants");
 const Access = require("../../shared/middleware/role-guard");
 const jwt = require('jsonwebtoken');
 const TokenSaver = require("../../shared/util/token-saver");
+const MailSender = require("../../shared/util/mail-sender");
+const crypto = require('crypto');
 /**
  * Use this endpoint to log an user with his credentials
  */
@@ -16,10 +18,10 @@ authRouter.route('/api/login')
     .post(function(req, res) {
         console.log(`====TRYING TO GET USER BY LOGIN REQUESTED : ${req.body.login}===`);
         UserRepository.getUserByLogin(req.body.login).then((userFound) => {
-            if (userFound[0] && userFound[0] !== null ) {
-                PasswordCrypter.comparePassword(userFound[0].password, req.body.password).then((match) => {
+            if (userFound && userFound !== null ) {
+                PasswordCrypter.comparePassword(userFound.password, req.body.password).then((match) => {
                     if (match) {
-                        TokenSaver.generateAndSaveUserFoundToken(req, res, userFound[0])
+                        TokenSaver.generateAndSaveUserFoundToken(req, res, userFound)
                     } else {
                         ErrorHandler.errorHandler({type: Constants.UNAUTHORIZE, message: 'Mot de passe incorrect'}, res);
                     }
@@ -79,5 +81,108 @@ authRouter.route('/api/logout')
             console.log(`/logout HAVE FAILED, error : ${err}`);
             ErrorHandler.errorHandler(err, res);
         });
+    });
+/**
+ * EndPoint to subscribe user
+ */
+authRouter.route('/api/subscribe')
+    .post(function(req, res) {
+        console.log(`==========NEW USER: ${req.body.login} TRY TO SUBSCRIBE=============`);
+        const user = {
+            login: req.body.login,
+            password: req.body.password,
+            mail: req.body.mail,
+            phone: req.body.phone
+        };
+        user.userInfo = req.body.userInfo ? req.body.userInfo : null;
+        UserRepository.getUserByLogin(user.login).then(() => {
+            res.status(400).send({message: 'login already exist'});
+        }).catch((err) => {
+            if (err && err.statusCode === 404) {
+                crypto.randomBytes(5, function (err, buf) {
+                    // Ensure the activation code is unique.
+                    user.activationCode = buf.toString('hex');
+                    UserRepository.createUser(user).then((user) => {
+                        const link = 'beinvestorfranceapp://account/active/' + user.activationCode;
+                        const userName = (user.userInfo && user.userInfo.firstName) ? user.userInfo.firstName: user.login;
+                        const mailSubject = userName + ', activer votre compte BeInvestor !';
+                        MailSender.sendAnAppMail(user.mail, mailSubject, Constants.MAIL_ACCOUNT_ACTIVATION_REQUIRED,
+                            {
+                                name: userName,
+                                subject: mailSubject,
+                                code: user.activationCode,
+                                activationLink: link,
+                            });
+                        res.sendStatus(201);
+                    }).catch((err) => {
+                        console.log(`/subscribe createUser HAVE FAILED, error : ${err}`);
+                        ErrorHandler.errorHandler(err, res);
+                    });
+                })
+            } else {
+                console.log(`/subscribe getUserByLogin HAVE FAILED, error : ${err}`);
+                ErrorHandler.errorHandler(err, res);
+            }
+        })
+    });
+authRouter.route('/api/activate')
+    .post(function(req, res) {
+        console.log(`==========TRY TO ACTIVATE ACCOUNT WITH KEY : ${req.body.activationCode}=============`);
+        if (req.body.activationCode) {
+            UserRepository.getUserByActivationKey(req.body.activationCode).then((user) => {
+                if (user) {
+                    if (user.mail === req.body.mail) {
+                        UserRepository.activateUserAccount(user).then((userActivated) => {
+                            res.json(userActivated);
+                        }).catch((err) => {
+                            console.log(`/activate activateUserAccount HAVE FAILED, error : ${err}`);
+                            ErrorHandler.errorHandler(err, res);
+                        })
+                    } else {
+                        res.status(403).send({message: 'mail not corresponding'})
+                    }
+                } else {
+                    res.status(404).send({message: 'no user found with this key'})
+                }
+            }).catch((err) => {
+                console.log(`/activate getUserByActivationKey HAVE FAILED, error : ${err}`);
+                ErrorHandler.errorHandler(err, res);
+            });
+        } else {
+            res.status(400).send({message: 'NO KEY PASSED TO ACTIVATE'});
+        }
+    });
+
+authRouter.route('/api/resend-activate')
+    .post(function(req, res) {
+        console.log(`==========TRY TO RESEND ACTIVATION CODE FOR : ${req.body.mail}=============`);
+        if (req.body.mail) {
+            UserRepository.getUserByMail(req.body.mail).then((user) => {
+                if (user) {
+                    crypto.randomBytes(5, function (err, buf) {
+                        user.activationCode = buf.toString('hex');
+                        UserRepository.updateActivationKey(user)
+                        const link = 'beinvestorfranceapp://account/active/' + user.activationCode;
+                        const userName = (user.userInfo && user.userInfo.firstName) ? user.userInfo.firstName : user.login;
+                        const mailSubject = userName + ', activer votre compte BeInvestor !';
+                        MailSender.sendAnAppMail(user.mail, mailSubject, Constants.MAIL_ACCOUNT_ACTIVATION_REQUIRED,
+                            {
+                                name: userName,
+                                subject: mailSubject,
+                                code: user.activationCode,
+                                activationLink: link,
+                            });
+                        res.sendStatus(200);
+                    });
+                } else {
+                    res.status(404).send({message: 'no user found with this mail'})
+                }
+            }).catch((err) => {
+                console.log(`/resend-activate getUserByMail HAVE FAILED, error : ${err}`);
+                ErrorHandler.errorHandler(err, res);
+            });
+        } else {
+            res.status(400).send({message: 'NO MAIL SEND'});
+        }
     });
 module.exports = authRouter;

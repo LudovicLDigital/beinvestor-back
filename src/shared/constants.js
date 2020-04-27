@@ -38,7 +38,15 @@ exports.ERROR_400_FUNC = function (errorMessage) {
 };
 // MAILS FILES
 exports.MAIL_PASS_CHANGED = 'mail-password-changed';
+exports.MAIL_ACCOUNT_ACTIVATION_REQUIRED = 'mail-confirm-account';
 // FILES DIRECTORIES NAME
 exports.USER_PIC = 'user-profil-picture';
 // OTHER CONSTANT
 exports.PAGING_ITEM_LIMIT = 15;
+
+
+// utilitary
+exports.SECOND = 1000;
+exports.MINUTE = 60 * 1000;
+exports.HOUR = 3600 * 1000;
+exports.DAY = 86400 * 1000;
