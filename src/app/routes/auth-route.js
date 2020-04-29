@@ -113,7 +113,7 @@ authRouter.route('/api/subscribe')
                                 code: user.activationCode,
                                 activationLink: link,
                             });
-                        res.sendStatus(201);
+                        res.sendStatus(user);
                     }).catch((err) => {
                         console.log(`/subscribe createUser HAVE FAILED, error : ${err}`);
                         ErrorHandler.errorHandler(err, res);

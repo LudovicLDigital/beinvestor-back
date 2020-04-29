@@ -5,7 +5,7 @@ const PasswordCrypter = require('../../../shared/util/password-crypter');
 class UserRepository {
     static async createUser(userDatas){
         const hashedPassword = await PasswordCrypter.cryptPassword(userDatas.password);
-        const userSaved = await User.query().insertGraph({
+        const userSaved = await User.query().insertGraphAndFetch({
             login: userDatas.login,
             password: hashedPassword,
             mail: userDatas.mail,
@@ -13,9 +13,15 @@ class UserRepository {
             activated: false,
             activationCode: userDatas.activationCode,
         });
-        await UserPersonalInfoRepo.createUserInfo(userDatas.userInfo, userSaved.id);
-        await UserRolesRepository.createUserRole(userSaved.id, 1);
-        return userSaved;
+        try {
+            await UserPersonalInfoRepo.createUserInfo(userDatas.userInfo, userSaved.id);
+            await UserRolesRepository.createUserRole(userSaved.id, 1);
+        } catch(e) {
+            if (e) {
+                await User.query().deleteById(userSaved.id);
+            }
+        }
+        return {mail: userSaved.mail, id: userSaved.id};
     }
     static async getAllUser(){
         return await User.query();
