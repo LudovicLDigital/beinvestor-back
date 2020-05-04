@@ -96,13 +96,14 @@ authRouter.route('/api/subscribe')
         };
         user.userInfo = req.body.userInfo ? req.body.userInfo : null;
         UserRepository.getUserByLogin(user.login).then(() => {
-            res.status(400).send({message: 'login already exist'});
+            console.log('====== PROCESS SUBSCRIBE ENDED WITH A 400=====');
+            res.status(400).send({message: 'Identifiant déjà existant'});
         }).catch((err) => {
             if (err && err.statusCode === 404) {
                 crypto.randomBytes(5, function (err, buf) {
                     // Ensure the activation code is unique.
                     user.activationCode = buf.toString('hex');
-                    UserRepository.createUser(user).then((user) => {
+                    UserRepository.createUser(user).then((userCreated) => {
                         const link = 'beinvestorfranceapp://account/active/' + user.activationCode;
                         const userName = (user.userInfo && user.userInfo.firstName) ? user.userInfo.firstName: user.login;
                         const mailSubject = userName + ', activer votre compte BeInvestor !';
@@ -113,7 +114,8 @@ authRouter.route('/api/subscribe')
                                 code: user.activationCode,
                                 activationLink: link,
                             });
-                        res.sendStatus(user);
+                        console.log('====== PROCESS SUBSCRIBE ENDED =====');
+                        res.json(userCreated);
                     }).catch((err) => {
                         console.log(`/subscribe createUser HAVE FAILED, error : ${err}`);
                         ErrorHandler.errorHandler(err, res);
@@ -133,23 +135,27 @@ authRouter.route('/api/activate')
                 if (user) {
                     if (user.mail === req.body.mail) {
                         UserRepository.activateUserAccount(user).then((userActivated) => {
-                            res.json(userActivated);
+                            res.status(200).json(userActivated);
+                            console.log('====== PROCESS ACTIVATE ENDED =====');
                         }).catch((err) => {
                             console.log(`/activate activateUserAccount HAVE FAILED, error : ${err}`);
                             ErrorHandler.errorHandler(err, res);
                         })
                     } else {
-                        res.status(403).send({message: 'mail not corresponding'})
+                        console.log('====== PROCESS ACTIVATE ENDED WITH A 403 =====');
+                        res.status(403).send({message: 'Le mail ne correspond pas'})
                     }
                 } else {
-                    res.status(404).send({message: 'no user found with this key'})
+                    console.log('====== PROCESS ACTIVATE ENDED WITH A 404 =====');
+                    res.status(404).send({message: 'Pas d\'utilisateur avec cette clé'})
                 }
             }).catch((err) => {
                 console.log(`/activate getUserByActivationKey HAVE FAILED, error : ${err}`);
                 ErrorHandler.errorHandler(err, res);
             });
         } else {
-            res.status(400).send({message: 'NO KEY PASSED TO ACTIVATE'});
+            console.log('====== PROCESS ACTIVATE ENDED WITH A 400 =====');
+            res.status(400).send({message: 'Pas de clé d\'activation passée'});
         }
     });
 
@@ -161,7 +167,7 @@ authRouter.route('/api/resend-activate')
                 if (user) {
                     crypto.randomBytes(5, function (err, buf) {
                         user.activationCode = buf.toString('hex');
-                        UserRepository.updateActivationKey(user)
+                        UserRepository.updateActivationKey(user);
                         const link = 'beinvestorfranceapp://account/active/' + user.activationCode;
                         const userName = (user.userInfo && user.userInfo.firstName) ? user.userInfo.firstName : user.login;
                         const mailSubject = userName + ', activer votre compte BeInvestor !';
@@ -172,17 +178,20 @@ authRouter.route('/api/resend-activate')
                                 code: user.activationCode,
                                 activationLink: link,
                             });
-                        res.sendStatus(200);
+                        console.log('====== PROCESS RESEND ACTIVATION CODE  ENDED =====');
+                        res.sendStatus(202);
                     });
                 } else {
-                    res.status(404).send({message: 'no user found with this mail'})
+                    console.log('====== PROCESS RESEND ACTIVATION CODE  ENDED WITH A 404 =====');
+                    res.status(404).send({message: 'Aucun utilisateur trouvé avec cet email'})
                 }
             }).catch((err) => {
                 console.log(`/resend-activate getUserByMail HAVE FAILED, error : ${err}`);
                 ErrorHandler.errorHandler(err, res);
             });
         } else {
-            res.status(400).send({message: 'NO MAIL SEND'});
+            console.log('====== PROCESS RESEND ACTIVATION CODE  ENDED WITH A 400 =====');
+            res.status(400).send({message: 'Aucun email transmis'});
         }
     });
 module.exports = authRouter;

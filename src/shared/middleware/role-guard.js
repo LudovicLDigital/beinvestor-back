@@ -12,7 +12,7 @@ const guard = {
                 }
                 if (!haveAccess) {
                     return res.status(401).json({
-                        error: "You don't have enough permission to perform this action"
+                        message: "Vous ne pouvez pas réaliser cette action"
                     });
                 }
                 next()

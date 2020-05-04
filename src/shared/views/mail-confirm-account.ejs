@@ -15,13 +15,13 @@
 <body width="100%" style="margin: 0;">
 <h2>Bienvenue dans la communauté BeInvestor <% if (name) { %><%= name %><%}%> !</h2>
 
-<p>Pour activer votre compte et profiter pleinement de l'application, clique ci-dessous :</p>
-<a href="<%= activationLink %>">Activer mon compte</a>
-
-<p>Si cela ne fonctionne pas, rentre le code suivant :</p>
+<p>Pour activer votre compte et profiter pleinement de l'application, rentrer le code suivant  :</p>
 <% if (code) { %>
 <h2><%= code %></h2>
 <% } %>
+
+<p>Sinon vous pouvez cliquer ci-dessous :</p>
+<a href="<%= activationLink %>">Activer mon compte</a>
 
 </body>
 </html>
