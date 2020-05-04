@@ -3,12 +3,14 @@ const knexInstance = require("../../../../knexInstance");
 const Role = require("../roles/role");
 
 class User extends Model {
-    constructor(login, password, mail, phone) {
+    constructor(login, password, mail, phone, resetPasswordCode, resetKeyExpire) {
         super();
         this.login = login;
         this.password = password;
         this.mail = mail;
         this.phone = phone;
+        this.resetPasswordCode = resetPasswordCode;
+        this.resetKeyExpire = resetKeyExpire;
     }
 
     static get tableName() {

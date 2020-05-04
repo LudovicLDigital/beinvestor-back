@@ -194,4 +194,78 @@ authRouter.route('/api/resend-activate')
             res.status(400).send({message: 'Aucun email transmis'});
         }
     });
+authRouter.route('/api/reset-password')
+    .post(function(req, res) {
+        console.log(`==========TRY TO CREATE RESET KEY TO RESET PASSWORD OF: ${req.body.mail}=============`);
+        if (req.body.mail) {
+            UserRepository.getUserByMail(req.body.mail).then((user) => {
+                if (user) {
+                    crypto.randomBytes(5, function (err, buf) {
+                        user.resetPasswordCode = buf.toString('hex');
+                        UserRepository.updateResetKey(user);
+                        const link = 'beinvestorfranceapp://account/reset/' + user.resetPasswordCode;
+                        const userName = (user.userInfo && user.userInfo.firstName) ? user.userInfo.firstName : user.login;
+                        const mailSubject = userName + ', reinitialisation du mot de passe sur BeInvestor !';
+                        MailSender.sendAnAppMail(user.mail, mailSubject, Constants.MAIL_PASSWORD_RESET_REQUESTED,
+                            {
+                                name: userName,
+                                subject: mailSubject,
+                                code: user.resetPasswordCode,
+                                resetLink: link,
+                            });
+                        console.log('====== PROCESS RESET PASSWORD ENDED =====');
+                        res.status(202).send({message: 'Mail envoyé'});
+                    });
+                } else {
+                    console.log('====== PROCESS RESET PASSWORD ENDED WITH A 404 =====');
+                    res.status(404).send({message: 'Aucun utilisateur trouvé avec cet email'})
+                }
+            }).catch((err) => {
+                console.log(`/resend-activate getUserByMail HAVE FAILED, error : ${err}`);
+                ErrorHandler.errorHandler(err, res);
+            });
+        } else {
+            console.log('====== PROCESS RESET PASSWORD ENDED WITH A 400 =====');
+            res.status(400).send({message: 'Aucun email transmis'});
+        }
+    });
+authRouter.route('/api/reset-password-end')
+    .post(function(req, res) {
+        console.log(`==========TRY TO CREATE RESET KEY TO RESET PASSWORD OF: ${req.body.mail}=============`);
+        if (req.body.mail) {
+            UserRepository.getUserByMail(req.body.mail).then((user) => {
+                if (user) {
+                    if (user.resetPasswordCode === req.body.resetKey) {
+                        if (new Date().getTime() < new Date(user.resetKeyExpire)) {
+                            UserRepository.changeUserPassword(req.body.newPassword, user.id);
+                            const userName = (user.userInfo && user.userInfo.firstName) ? user.userInfo.firstName : user.login;
+                            const mailSubject = 'Changement de votre mot de passe BeInvestor';
+                            MailSender.sendAnAppMail(user.mail, mailSubject, Constants.MAIL_PASS_CHANGED,
+                                {
+                                    login: userName,
+                                    subject: mailSubject
+                                });
+                            console.log('====== PROCESS RESET PASSWORD ENDED =====');
+                            res.status(202).send({message: 'Mot de passe changé'});
+                        } else {
+                            console.log('====== PROCESS RESET PASSWORD ENDED WITH A 400 =====');
+                            res.status(400).send({message: 'Le code n\'est plus valide, il expire au bout de 24H'})
+                        }
+                    } else {
+                        console.log('====== PROCESS RESET PASSWORD ENDED WITH A 400 =====');
+                        res.status(400).send({message: 'Le code ne correspond pas'})
+                    }
+                } else {
+                    console.log('====== PROCESS RESET PASSWORD ENDED WITH A 404 =====');
+                    res.status(404).send({message: 'Aucun utilisateur trouvé avec cet email'})
+                }
+            }).catch((err) => {
+                console.log(`/resend-activate getUserByMail HAVE FAILED, error : ${err}`);
+                ErrorHandler.errorHandler(err, res);
+            });
+        } else {
+            console.log('====== PROCESS RESET PASSWORD ENDED WITH A 400 =====');
+            res.status(400).send({message: 'Aucun email transmis'});
+        }
+    });
 module.exports = authRouter;

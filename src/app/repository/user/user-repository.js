@@ -2,6 +2,7 @@ const User = require("../../models/user/user");
 const UserPersonalInfoRepo = require('./user-personal-info-repository');
 const UserRolesRepository = require('../roles/user-roles-repository');
 const PasswordCrypter = require('../../../shared/util/password-crypter');
+const Constant = require("../../../shared/constants");
 class UserRepository {
     static async createUser(userDatas){
         const hashedPassword = await PasswordCrypter.cryptPassword(userDatas.password);
@@ -43,6 +44,8 @@ class UserRepository {
         if (newPassword && newPassword !== null && newPassword.trim() !== '') {
             updateUser.id = userId;
             updateUser.password = await PasswordCrypter.cryptPassword(newPassword);
+            updateUser.resetKeyExpire = null;
+            updateUser.resetPasswordCode = null;
             return await User.query().updateAndFetchById(userId, updateUser).throwIfNotFound();
         } else {
             throw 'NO PASSWORD VALID';
@@ -78,6 +81,11 @@ class UserRepository {
     }
     static async updateActivationKey(userWithCode) {
         userWithCode.updated_at = new Date();
+        return await User.query().updateAndFetchById(userWithCode.id, userWithCode).throwIfNotFound();
+    }
+    static async updateResetKey(userWithCode) {
+        userWithCode.updated_at = new Date();
+        userWithCode.resetKeyExpire = new Date(new Date().getTime() + Constant.DAY);
         return await User.query().updateAndFetchById(userWithCode.id, userWithCode).throwIfNotFound();
     }
     static async deleteUser(userId) {

@@ -39,6 +39,7 @@ exports.ERROR_400_FUNC = function (errorMessage) {
 // MAILS FILES
 exports.MAIL_PASS_CHANGED = 'mail-password-changed';
 exports.MAIL_ACCOUNT_ACTIVATION_REQUIRED = 'mail-confirm-account';
+exports.MAIL_PASSWORD_RESET_REQUESTED = 'mail-reset-password-key';
 // FILES DIRECTORIES NAME
 exports.USER_PIC = 'user-profil-picture';
 // OTHER CONSTANT
