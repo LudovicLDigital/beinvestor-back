@@ -168,7 +168,7 @@ authRouter.route('/api/resend-activate')
                     crypto.randomBytes(5, function (err, buf) {
                         user.activationCode = buf.toString('hex');
                         UserRepository.updateActivationKey(user);
-                        const link = 'beinvestorfranceapp://account/active/' + user.activationCode;
+                        const link = 'beinvestorapp://account/active?key=' + user.activationCode;
                         const userName = (user.userInfo && user.userInfo.firstName) ? user.userInfo.firstName : user.login;
                         const mailSubject = userName + ', activer votre compte BeInvestor !';
                         MailSender.sendAnAppMail(user.mail, mailSubject, Constants.MAIL_ACCOUNT_ACTIVATION_REQUIRED,
@@ -203,7 +203,7 @@ authRouter.route('/api/reset-password')
                     crypto.randomBytes(5, function (err, buf) {
                         user.resetPasswordCode = buf.toString('hex');
                         UserRepository.updateResetKey(user);
-                        const link = 'beinvestorfranceapp://account/reset/' + user.resetPasswordCode;
+                        const link = 'beinvestorapp://account/reset?key=' + user.resetPasswordCode;
                         const userName = (user.userInfo && user.userInfo.firstName) ? user.userInfo.firstName : user.login;
                         const mailSubject = userName + ', reinitialisation du mot de passe sur BeInvestor !';
                         MailSender.sendAnAppMail(user.mail, mailSubject, Constants.MAIL_PASSWORD_RESET_REQUESTED,
