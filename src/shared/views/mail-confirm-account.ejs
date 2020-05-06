@@ -15,21 +15,31 @@
             align-items: center;
             border: 0.2em solid #6e398d;
         }
+        #activationLink {
+            background-color: #03a9f4;
+            border-radius: 5%;
+            color: #ffffff;
+            padding: 1em;
+            text-decoration: none;
+        }
         h2 {
             text-align: center;
         }
     </style>
-
     <%- include('./submail-part/mail-header')-%>
 </head>
 
 <body width="100%" style="margin: 0;">
-<% if (login) { %>
-<h2>⚠️<%= login %>, votre mot de passe vient d'être changé</h2>
-<% } else { %>
-<h2>⚠️Attention votre mot de passe vient d'être modifié !</h2>
+<h2>🙌 Bienvenue dans la communauté BeInvestor <% if (name) { %><%= name %><%}%> !</h2>
+
+<p>Pour activer votre compte et profiter pleinement de l'application, vous pouvez cliquer ci-dessous :</p>
+<a id="activationLink" href="<%= activationLink %>">Activer mon compte</a>
+
+<p>Si le button ci-dessus ne fonctionne pas vous pouvez rentrer le code suivant dans l'application  :</p>
+<% if (code) { %>
+<h2><%= code %></h2>
 <% } %>
-<p>Si ce n'était pas vous, nous vous invitons à changer votre mot de passe rapidement</p>
+
 </body>
 <footer>
     <%- include('./submail-part/mail-footer')-%>

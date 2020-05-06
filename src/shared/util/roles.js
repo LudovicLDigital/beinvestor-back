@@ -5,7 +5,7 @@ exports.roles = (function() {
     accessControlInstance.grant(Constants.R_FREE)
         .readOwn(Constants.T_USER).readAny(Constants.T_USER).updateOwn(Constants.T_USER).deleteOwn(Constants.T_USER)
         .readOwn(Constants.T_USER_INFO).readAny(Constants.T_USER_INFO).updateOwn(Constants.T_USER_INFO).deleteOwn(Constants.T_USER_INFO)
-        .readOwn(Constants.T_USER_TOKEN).updateOwn(Constants.T_USER_TOKEN)
+        .readOwn(Constants.T_USER_TOKEN).deleteOwn(Constants.T_USER_TOKEN).updateOwn(Constants.T_USER_TOKEN)
         .readOwn(Constants.T_USER_ROLE)
         .readAny(Constants.T_ROLE)
         .readAny(Constants.T_GROUP)

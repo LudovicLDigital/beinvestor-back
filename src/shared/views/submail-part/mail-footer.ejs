@@ -5,33 +5,27 @@
     <meta name="viewport" content="width=device-width"> <!-- Forcing initial-scale shouldn't be necessary -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge"> <!-- Use the latest (edge) version of IE rendering engine -->
     <meta name="x-apple-disable-message-reformatting">  <!-- Disable auto-scale in iOS 10 Mail entirely -->
-    <title><%= subject%></title> <!-- The title tag shows in email notifications, like Android 4.4. -->
-
     <!-- CSS Reset : BEGIN -->
     <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            border: 0.2em solid #6e398d;
+        li {
+            margin-bottom: 1em;
+            list-style-type: none
         }
-        h2 {
+        #sentenceFooter {
             text-align: center;
         }
     </style>
-
-    <%- include('./submail-part/mail-header')-%>
 </head>
 
 <body width="100%" style="margin: 0;">
-<% if (login) { %>
-<h2>⚠️<%= login %>, votre mot de passe vient d'être changé</h2>
-<% } else { %>
-<h2>⚠️Attention votre mot de passe vient d'être modifié !</h2>
-<% } %>
-<p>Si ce n'était pas vous, nous vous invitons à changer votre mot de passe rapidement</p>
+<p id="sentenceFooter">BeInvestor, devenez l'investisseur immobilier de demain ! 💶</p>
+<ul>
+    <li>
+        📞 <a href="mailto://support@beinvestor.com">support@beinvestor.com</a>
+    </li>
+    <li>
+        📧 <a href="tel://support@beinvestor.com">+336.33.57.04.02</a>
+    </li>
+</ul>
 </body>
-<footer>
-    <%- include('./submail-part/mail-footer')-%>
-</footer>
 </html>

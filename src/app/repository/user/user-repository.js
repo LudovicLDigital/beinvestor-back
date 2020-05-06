@@ -2,18 +2,27 @@ const User = require("../../models/user/user");
 const UserPersonalInfoRepo = require('./user-personal-info-repository');
 const UserRolesRepository = require('../roles/user-roles-repository');
 const PasswordCrypter = require('../../../shared/util/password-crypter');
+const Constant = require("../../../shared/constants");
 class UserRepository {
     static async createUser(userDatas){
-         const hashedPassword = await PasswordCrypter.cryptPassword(userDatas.password);
-         const userSaved = await User.query().insertGraph({
+        const hashedPassword = await PasswordCrypter.cryptPassword(userDatas.password);
+        const userSaved = await User.query().insertGraphAndFetch({
             login: userDatas.login,
             password: hashedPassword,
             mail: userDatas.mail,
-            phone: userDatas.phone
+            phone: userDatas.phone,
+            activated: false,
+            activationCode: userDatas.activationCode,
         });
-        await UserPersonalInfoRepo.createUserInfo(userDatas, userSaved.id);
-        await UserRolesRepository.createUserRole(userSaved.id, 1);
-        return userSaved;
+        try {
+            await UserPersonalInfoRepo.createUserInfo(userDatas.userInfo, userSaved.id);
+            await UserRolesRepository.createUserRole(userSaved.id, 1);
+        } catch(e) {
+            if (e) {
+                await User.query().deleteById(userSaved.id);
+            }
+        }
+        return {mail: userSaved.mail, id: userSaved.id};
     }
     static async getAllUser(){
         return await User.query();
@@ -22,13 +31,21 @@ class UserRepository {
         return await User.query().findById(userId).throwIfNotFound();
     }
     static async getUserByLogin(login){
-        return await User.query().where('login', login).throwIfNotFound();
+        return await User.query().where('login', login).first().throwIfNotFound();
+    }
+    static async getUserByActivationKey(activationKey) {
+        return await User.query().where('activationCode', activationKey).first().throwIfNotFound();
+    }
+    static async getUserByMail(mail) {
+        return await User.query().where('mail', mail).first().throwIfNotFound();
     }
     static async changeUserPassword(newPassword, userId) {
         const updateUser = new User();
         if (newPassword && newPassword !== null && newPassword.trim() !== '') {
             updateUser.id = userId;
             updateUser.password = await PasswordCrypter.cryptPassword(newPassword);
+            updateUser.resetKeyExpire = null;
+            updateUser.resetPasswordCode = null;
             return await User.query().updateAndFetchById(userId, updateUser).throwIfNotFound();
         } else {
             throw 'NO PASSWORD VALID';
@@ -55,6 +72,21 @@ class UserRepository {
                 }).catch((onError) => reject(onError));
             });
         }
+    }
+    static async activateUserAccount(userToActivate) {
+        userToActivate.activationCode = null;
+        userToActivate.activated = true;
+        userToActivate.updated_at = new Date();
+        return await User.query().updateAndFetchById(userToActivate.id, userToActivate).throwIfNotFound();
+    }
+    static async updateActivationKey(userWithCode) {
+        userWithCode.updated_at = new Date();
+        return await User.query().updateAndFetchById(userWithCode.id, userWithCode).throwIfNotFound();
+    }
+    static async updateResetKey(userWithCode) {
+        userWithCode.updated_at = new Date();
+        userWithCode.resetKeyExpire = new Date(new Date().getTime() + Constant.DAY);
+        return await User.query().updateAndFetchById(userWithCode.id, userWithCode).throwIfNotFound();
     }
     static async deleteUser(userId) {
         return await User.query().deleteById(userId).throwIfNotFound();
