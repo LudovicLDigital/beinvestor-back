@@ -9,19 +9,39 @@
 
     <!-- CSS Reset : BEGIN -->
     <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 0.2em solid #6e398d;
+        }
+        #activationLink {
+            background-color: #03a9f4;
+            border-radius: 5%;
+            color: #ffffff;
+            padding: 1em;
+            text-decoration: none;
+        }
+        h2 {
+            text-align: center;
+        }
     </style>
+    <%- include('./submail-part/mail-header')-%>
 </head>
 
 <body width="100%" style="margin: 0;">
-<h2>Bienvenue dans la communauté BeInvestor <% if (name) { %><%= name %><%}%> !</h2>
+<h2>🙌 Bienvenue dans la communauté BeInvestor <% if (name) { %><%= name %><%}%> !</h2>
 
-<p>Pour activer votre compte et profiter pleinement de l'application, rentrer le code suivant dans l'application :</p>
+<p>Pour activer votre compte et profiter pleinement de l'application, vous pouvez cliquer ci-dessous :</p>
+<a id="activationLink" href="<%= activationLink %>">Activer mon compte</a>
+
+<p>Si le button ci-dessus ne fonctionne pas vous pouvez rentrer le code suivant dans l'application  :</p>
 <% if (code) { %>
 <h2><%= code %></h2>
 <% } %>
 
-<p>Sinon vous pouvez cliquer ci-dessous :</p>
-<a href="<%= activationLink %>">Activer mon compte</a>
-
 </body>
+<footer>
+    <%- include('./submail-part/mail-footer')-%>
+</footer>
 </html>

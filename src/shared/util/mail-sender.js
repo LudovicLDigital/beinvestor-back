@@ -1,7 +1,6 @@
 const nodemailer = require('nodemailer');
 const ejs = require("ejs");
 const MailSender = {
-    _transport: null,
     configureSMTP() {
         MailSender.transport = nodemailer.createTransport({
             host: 'smtp.mailtrap.io',
@@ -21,7 +20,12 @@ const MailSender = {
                     from: 'Ludovic@beinvestor-team.com', // Sender address
                     to: to,         // List of recipients
                     subject: subject, // Subject line
-                    html: data
+                    html: data,
+                    attachments: [{
+                        filename: 'icon.png',
+                        path: process.env.SERVER_ROOT +'/public/assets/icon.png',
+                        cid: 'logo' // for <img/> in mail body
+                    }]
                 };
                 MailSender.transport.sendMail(message, function (err, info) {
                     if (err) {
