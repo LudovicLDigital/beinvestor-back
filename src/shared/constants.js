@@ -19,6 +19,8 @@ exports.T_USER_GROUP = 'user-groups';
 exports.T_CITY = 'city';
 exports.T_GEO_ADRESS = 'geo_adress';
 exports.T_PICTURE = 'picture';
+// SIMULATOR
+exports.SIMULATOR = 'permForSimulator';
 // USER STATUS (role)
 exports.R_FREE = 'freeUser';
 exports.R_NO_PUB = 'freeNoPub';

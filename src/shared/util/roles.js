@@ -10,6 +10,7 @@ exports.roles = (function() {
         .readAny(Constants.T_ROLE)
         .readAny(Constants.T_GROUP)
         .readAny(Constants.T_CITY)
+        .readOwn(Constants.SIMULATOR)
         .readAny(Constants.T_PICTURE).updateOwn(Constants.T_PICTURE).deleteOwn(Constants.T_PICTURE).createOwn(Constants.T_PICTURE)
         .readAny(Constants.T_GEO_ADRESS).createOwn(Constants.T_GEO_ADRESS).updateOwn(Constants.T_GEO_ADRESS).deleteOwn(Constants.T_GEO_ADRESS)
         .createOwn(Constants.T_GROUP_MESSAGE).deleteOwn(Constants.T_GROUP_MESSAGE).updateOwn(Constants.T_GROUP_MESSAGE).readAny(Constants.T_GROUP_MESSAGE)
@@ -17,7 +18,8 @@ exports.roles = (function() {
     accessControlInstance.grant(Constants.R_NO_PUB)
         .extend(Constants.R_FREE);
     accessControlInstance.grant(Constants.R_PREMIUM)
-        .extend(Constants.R_NO_PUB);
+        .extend(Constants.R_NO_PUB)
+        .readAny(Constants.SIMULATOR);
     accessControlInstance.grant(Constants.R_PRO)
         .extend(Constants.R_NO_PUB);
     accessControlInstance.grant(Constants.R_ADMIN)
