@@ -8,6 +8,8 @@ exports.up = function(knex) {
         t.integer('furnitureCost');
         t.integer('monthlyRent');
         t.integer('secureSaving');
+        t.integer('taxeFonciere');
+        t.integer('chargeCopro');
         t.integer("userInfoId").unsigned().notNullable();
         t.foreign("userInfoId", "fk_user_info_id_for_user_estate").references("user_personal_info.id").onDelete('CASCADE');
     })
