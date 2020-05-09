@@ -6,6 +6,7 @@ exports.up = function(knex) {
         t.integer('nbEstate');
         t.integer('annualRent');
         t.integer('fiscalPart');
+        t.integer('actualCreditMensualities');
     });
 };
 
