@@ -49,10 +49,17 @@ class SimulatorInvestDatasCalculator {
         if (simulatorDataObject.bankStats && simulatorDataObject.bankStats !== null) {
             bankCharge = simulatorDataObject.bankStats.creditWarrantyCost + simulatorDataObject.bankStats.bankCharges;
         }
-        let totalRevenuCharged = SimulatorInvestDatasCalculator._totalRevenuCharged(annualData, estateData, sessionData);
+        let totalRevenuCharged = SimulatorInvestDatasCalculator.totalRevenuCharged(annualData, estateData, sessionData);
         return Tools.roundNumber(((totalRevenuCharged / (simulatorDataObject.totalProjectCost + bankCharge)) * 100),2);
     }
-    static _totalRevenuCharged(annualData, estateData, sessionData) {
+    /**
+     * Recover the annual rent after all charges paid (monthly/yearly charges)
+     * @param annualData data contain count on year (rent, gliCost etc...)
+     * @param estateData data containing estate information
+     * @param sessionData data containing form session for calculator's data
+     * @returns {number}
+     */
+    static totalRevenuCharged(annualData, estateData, sessionData) {
         return (annualData.annualRent
             - estateData.taxeFonciere
             - estateData.chargeCopro
@@ -64,12 +71,12 @@ class SimulatorInvestDatasCalculator {
             - annualData.gliCost
             - annualData.creditInsurance);
     }
-    static calculateCashflows(simulatorDataObject, creditDetail) {
+    static calculateCashflows(simulatorDataObject, creditDetail, fiscalityData) {
         const annualData = SimulatorInvestDatasCalculator.annualCharges(simulatorDataObject, creditDetail);
         const cashflowBrut = Tools.roundNumber(simulatorDataObject.userEstate.monthlyRent - creditDetail.mensuality,2);
-        const totalRevenuCharged = SimulatorInvestDatasCalculator._totalRevenuCharged(annualData, simulatorDataObject.userEstate, simulatorDataObject.userSimulatorSessionValues);
+        const totalRevenuCharged = SimulatorInvestDatasCalculator.totalRevenuCharged(annualData, simulatorDataObject.userEstate, simulatorDataObject.userSimulatorSessionValues);
         const cashflowNet = Tools.roundNumber((totalRevenuCharged / 12) - creditDetail.mensuality,2);
-        const cashflowNetNet = 'ATTENTE DU CALCUL FISCAL';
+        const cashflowNetNet = cashflowNet - ((fiscalityData.taxPS + fiscalityData.taxIR)/12);
         return {
             cashflowBrut,
             cashflowNet,

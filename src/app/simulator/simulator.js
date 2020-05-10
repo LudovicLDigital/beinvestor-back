@@ -7,19 +7,8 @@ const UserSimulatorSessionValues = require('../models/simulator/user-simulator-s
 const SimulatorBankCalculator = require("./simulator-bank-calculator");
 const SimulatorInvestDatasCalculator = require("./simulator-invest-datas-calculator");
 const SimulatorAnnexCalculator = require("./simulator-annex-calculator");
-const {NOTARIAL_PERCENT} = require('./simulator-constants');
-const dtoForReturn = {
-    mensuality : null,
-    totalInterest : null,
-    totalBankInsuranceCost : null,
-    mensualityWithInsurance : null,
-    userEndettement : null,
-    userInvestProfil: null, // a UserInvestorProfil
-    investResult: null, // is a SessionsResult object,
-    notarialCost: null,
-    agenceCharge: null,
-    simulatorDatas: null, // a SimulatorDataObject
-};
+const SimulatorFiscalityCalculator = require("./simulator-fiscality-calculator");
+
 class Simulator {
     async getSimulationResultFromReq(req) {
         return new Promise(async (resolve, reject) => {
@@ -32,7 +21,8 @@ class Simulator {
             const creditDetails = SimulatorBankCalculator.getCreditDetails(simulatorDataObject, userInvestorProfil);
             sessionResult.rentaBrutte = SimulatorInvestDatasCalculator.calculateRentabilityBrut(simulatorDataObject, notarialCost);
             sessionResult.rentaNet = SimulatorInvestDatasCalculator.calculateRentaNet(simulatorDataObject, creditDetails);
-            sessionResult.cashflow = SimulatorInvestDatasCalculator.calculateCashflows(simulatorDataObject, creditDetails);
+            const fiscalityData = SimulatorFiscalityCalculator.getFiscalityData(simulatorDataObject,creditDetails,notarialCost, userInvestorProfil);
+            sessionResult.cashflow = SimulatorInvestDatasCalculator.calculateCashflows(simulatorDataObject, creditDetails, fiscalityData);
             resolve({
                 result: sessionResult,
                 notarialCost: notarialCost,
@@ -40,6 +30,7 @@ class Simulator {
                 simulatorDatas: simulatorDataObject,
                 userInvestData: userInvestorProfil,
                 creditDetail: creditDetails,
+                fiscality: fiscalityData,
                 annualCharge: SimulatorInvestDatasCalculator.annualCharges(simulatorDataObject, creditDetails)
             });
         });
@@ -48,7 +39,7 @@ class Simulator {
         return new UserInvestorProfil(null,
             req.body.professionnalSalary,
             req.body.nbEstate,
-            req.body.annualRent,
+            req.body.annualRent, // must be only imposable revenu
             req.body.actualCreditMensualities);
     }
     async _prepareSimulatorDataObject(req) {
@@ -61,6 +52,7 @@ class Simulator {
             req.body.furnitureCost,
             req.body.monthlyRent,
             req.body.secureSaving,
+            req.body.previsionalRentCharge,
             req.body.taxeFonciere,
             req.body.chargeCopro,
             req.user.data.userInfo.id);
