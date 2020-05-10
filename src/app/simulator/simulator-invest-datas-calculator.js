@@ -49,7 +49,11 @@ class SimulatorInvestDatasCalculator {
         if (simulatorDataObject.bankStats && simulatorDataObject.bankStats !== null) {
             bankCharge = simulatorDataObject.bankStats.creditWarrantyCost + simulatorDataObject.bankStats.bankCharges;
         }
-        let totalRevenuCharged = ((simulatorDataObject.userEstate.monthlyRent * 12)
+        let totalRevenuCharged = SimulatorInvestDatasCalculator._totalRevenuCharged(annualData, estateData, sessionData);
+        return Tools.roundNumber(((totalRevenuCharged / (simulatorDataObject.totalProjectCost + bankCharge)) * 100),2);
+    }
+    static _totalRevenuCharged(annualData, estateData, sessionData) {
+        return (annualData.annualRent
             - estateData.taxeFonciere
             - estateData.chargeCopro
             - annualData.rentGestionCost
@@ -59,7 +63,19 @@ class SimulatorInvestDatasCalculator {
             - annualData.vlInsuranceCost
             - annualData.gliCost
             - annualData.creditInsurance);
-        return Tools.roundNumber(((totalRevenuCharged / (simulatorDataObject.totalProjectCost + bankCharge)) * 100),2);
+    }
+    static calculateCashflows(simulatorDataObject, creditDetail) {
+        const annualData = SimulatorInvestDatasCalculator.annualCharges(simulatorDataObject, creditDetail);
+        const cashflowBrut = Tools.roundNumber(simulatorDataObject.userEstate.monthlyRent - creditDetail.mensuality,2);
+        const totalRevenuCharged = SimulatorInvestDatasCalculator._totalRevenuCharged(annualData, simulatorDataObject.userEstate, simulatorDataObject.userSimulatorSessionValues);
+        const cashflowNet = Tools.roundNumber((totalRevenuCharged / 12) - creditDetail.mensuality,2);
+        const cashflowNetNet = 'ATTENTE DU CALCUL FISCAL';
+        return {
+            cashflowBrut,
+            cashflowNet,
+            cashflowNetNet
+        }
+
     }
 }
 module.exports = SimulatorInvestDatasCalculator;
