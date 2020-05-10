@@ -2,7 +2,7 @@ const { Model } = require("objection");
 const knexInstance = require("../../../../knexInstance");
 
 class UserEstate extends Model {
-    constructor(id, buyPrice, surface, workCost, furnitureCost, monthlyRent, secureSaving, userInfoId) {
+    constructor(id, buyPrice, surface, workCost, furnitureCost, monthlyRent, secureSaving, taxeFonciere, chargeCopro, userInfoId) {
         super();
         this.id = id;
         this.buyPrice = buyPrice;
@@ -11,6 +11,8 @@ class UserEstate extends Model {
         this.furnitureCost = furnitureCost;
         this.monthlyRent = monthlyRent;
         this.secureSaving = secureSaving;
+        this.taxeFonciere = taxeFonciere;
+        this.chargeCopro = chargeCopro;
         this.userInfoId = userInfoId;
     }
 

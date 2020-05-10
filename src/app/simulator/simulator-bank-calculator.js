@@ -35,7 +35,7 @@ class SimulatorBankCalculator {
             if (req.body.creditWarrantyCost > 0) {
                 bankWarrantyCost = req.body.creditWarrantyCost;
             } else {
-                bankWarrantyCost = totalCredit * BANK_GARANTY_PERCENT;
+                bankWarrantyCost = Tools.roundNumber(totalCredit * BANK_GARANTY_PERCENT,2);
             }
             totalCredit = totalCredit + bankWarrantyCost;
             simulatorDataObject.bankStats = new BankStats(null,
@@ -44,16 +44,16 @@ class SimulatorBankCalculator {
                 bankWarrantyCost,
                 bankFolderCost,
                 req.body.creditTime,
-                req.body.bankRate / 100);
-            simulatorDataObject.totalCredit = totalCredit;
+                Tools.roundNumber(req.body.bankRate / 100, 4));
+            simulatorDataObject.totalCredit = Tools.roundNumber(totalCredit, 2);
             if (!req.body.includeFurnitureInCredit) {
-                simulatorDataObject.totalProjectCost = totalCredit + simulatorDataObject.userEstate.furnitureCost + req.body.apport;
+                simulatorDataObject.totalProjectCost = Tools.roundNumber(totalCredit + simulatorDataObject.userEstate.furnitureCost + req.body.apport, 2);
             } else {
-                simulatorDataObject.totalProjectCost = totalCredit + req.body.apport;
+                simulatorDataObject.totalProjectCost = Tools.roundNumber(totalCredit + req.body.apport, 2);
             }
         } else {
             simulatorDataObject.bankStats = null;
-            simulatorDataObject.totalProjectCost = simulatorDataObject.userEstate.buyPrice + simulatorDataObject.userEstate.workCost + notarialCost + simulatorDataObject.userEstate.furnitureCost;
+            simulatorDataObject.totalProjectCost = Tools.roundNumber(simulatorDataObject.userEstate.buyPrice + simulatorDataObject.userEstate.workCost + notarialCost + simulatorDataObject.userEstate.furnitureCost, 2);
         }
         return simulatorDataObject;
     }
@@ -70,11 +70,11 @@ class SimulatorBankCalculator {
         const monthlyRevenuUser = (userInvestorProfil.professionnalSalary + userInvestorProfil.annualRent)/12;
         const userEndettement = ((mensuality + userInvestorProfil.actualCreditMensualities)/(monthlyRevenuUser + (simulatorDataObject.userEstate.monthlyRent *0.7))) * 100;
         return {
-            mensuality : mensuality,
-            totalInterest : totalInterest,
-            totalBankInsuranceCost : totalBankInsuranceCost,
-            mensualityWithInsurance : mensualityWithInsurance,
-            userEndettement : userEndettement
+            mensuality : Tools.roundNumber(mensuality,2),
+            totalInterest : Tools.roundNumber(totalInterest,2),
+            totalBankInsuranceCost : Tools.roundNumber(totalBankInsuranceCost,2),
+            mensualityWithInsurance : Tools.roundNumber(mensualityWithInsurance,2),
+            userEndettement : Tools.roundNumber(userEndettement,2)
         };
     }
 

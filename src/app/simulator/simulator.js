@@ -8,6 +8,18 @@ const SimulatorBankCalculator = require("./simulator-bank-calculator");
 const SimulatorInvestDatasCalculator = require("./simulator-invest-datas-calculator");
 const SimulatorAnnexCalculator = require("./simulator-annex-calculator");
 const {NOTARIAL_PERCENT} = require('./simulator-constants');
+const dtoForReturn = {
+    mensuality : null,
+    totalInterest : null,
+    totalBankInsuranceCost : null,
+    mensualityWithInsurance : null,
+    userEndettement : null,
+    userInvestProfil: null, // a UserInvestorProfil
+    investResult: null, // is a SessionsResult object,
+    notarialCost: null,
+    agenceCharge: null,
+    simulatorDatas: null, // a SimulatorDataObject
+};
 class Simulator {
     async getSimulationResultFromReq(req) {
         return new Promise(async (resolve, reject) => {
@@ -17,14 +29,17 @@ class Simulator {
             const agenceCharge = SimulatorAnnexCalculator.getFAI(req, simulatorDataObject);
             simulatorDataObject = SimulatorBankCalculator.setBankCost(req, simulatorDataObject, notarialCost);
             const sessionResult = new SessionsResult();
+            const creditDetails = SimulatorBankCalculator.getCreditDetails(simulatorDataObject, userInvestorProfil);
             sessionResult.rentaBrutte = SimulatorInvestDatasCalculator.calculateRentabilityBrut(simulatorDataObject, notarialCost);
+            sessionResult.rentaNet = SimulatorInvestDatasCalculator.calculateRentaNet(simulatorDataObject, creditDetails);
             resolve({
                 result: sessionResult,
                 notarialCost: notarialCost,
                 agenceCharge: agenceCharge,
                 simulatorDatas: simulatorDataObject,
                 userInvestData: userInvestorProfil,
-                creditDetail: SimulatorBankCalculator.getCreditDetails(simulatorDataObject, userInvestorProfil)
+                creditDetail: creditDetails,
+                annualCharge: SimulatorInvestDatasCalculator.annualCharges(simulatorDataObject, creditDetails)
             });
         });
     }
@@ -45,6 +60,8 @@ class Simulator {
             req.body.furnitureCost,
             req.body.monthlyRent,
             req.body.secureSaving,
+            req.body.taxeFonciere,
+            req.body.chargeCopro,
             req.user.data.userInfo.id);
         simulatorDataObject.userSimulatorSessionValues = new UserSimulatorSessionValues(null,
             req.body.percentRentManagement / 100,

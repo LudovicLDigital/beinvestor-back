@@ -1,3 +1,4 @@
+const Tools = require("../../shared/util/tools");
 const {NOTARIAL_PERCENT, FAI_PERCENT} = require('./simulator-constants');
 
 /**
@@ -13,14 +14,14 @@ class SimulatorAnnexCalculator {
         } else {
             agenceCharge = 0;
         }
-        return agenceCharge;
+        return Tools.roundNumber(agenceCharge,2);
     }
     static getNotarialCost(simulatorDataObject, req) {
         const agenceCharge = SimulatorAnnexCalculator.getFAI(req, simulatorDataObject);
         const buildingCost = simulatorDataObject.userEstate.buyPrice - agenceCharge;
         return (req.body.notarialCost && req.body.notarialCost > 0)
             ? req.body.notarialCost
-            : NOTARIAL_PERCENT * buildingCost;
+            : Tools.roundNumber(NOTARIAL_PERCENT * buildingCost,2);
     }
 }
 
