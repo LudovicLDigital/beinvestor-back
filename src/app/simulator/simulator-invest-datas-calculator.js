@@ -8,10 +8,23 @@ const RENT_GESTION_PERCENT = require("./simulator-constants").RENT_GESTION_PERCE
  */
 class SimulatorInvestDatasCalculator {
 
+    /**
+     * Calculate the "rentabilité brutte" it's rent per year on the "normal" costs as notarial, work and buy price
+     * @param simulatorDataObject
+     * @param notarialCost
+     * @returns {float}
+     */
     static calculateRentabilityBrut(simulatorDataObject, notarialCost) {
         let totalInvestBrut = simulatorDataObject.userEstate.buyPrice + simulatorDataObject.userEstate.workCost + notarialCost;
         return Tools.roundNumber((((simulatorDataObject.userEstate.monthlyRent * 12)/totalInvestBrut)*100),2);
     }
+
+    /**
+     * Calculated and round all annual datas as rent / charges
+     * @param simulatorDataObject
+     * @param creditDetail
+     * @returns {{gliCost: float, annualRent: number, vlInsuranceCost: float, creditInsurance: number, secureCost: *, rentGestionCost: float}}
+     */
     static annualCharges(simulatorDataObject, creditDetail) {
         const sessionData = simulatorDataObject.userSimulatorSessionValues;
         const estateData = simulatorDataObject.userEstate;
@@ -41,6 +54,13 @@ class SimulatorInvestDatasCalculator {
             rentGestionCost
         }
     }
+
+    /**
+     * Calculate the "rentabilité nette" it's all rent minus charges without taxes on the total projet cost on buy time (buy price, fai, notarial, bank)
+     * @param simulatorDataObject
+     * @param creditDetail
+     * @returns {float}
+     */
     static calculateRentaNet(simulatorDataObject, creditDetail) {
         const sessionData = simulatorDataObject.userSimulatorSessionValues;
         const estateData = simulatorDataObject.userEstate;
@@ -71,6 +91,14 @@ class SimulatorInvestDatasCalculator {
             - annualData.gliCost
             - annualData.creditInsurance);
     }
+
+    /**
+     * Recover all cashflow detail, brut (rent - credit), net (CF brut - charges), NetNet (CF Net - taxes)
+     * @param simulatorDataObject
+     * @param creditDetail
+     * @param fiscalityData
+     * @returns {{cashflowBrut: float, cashflowNet: float, cashflowNetNet: number}}
+     */
     static calculateCashflows(simulatorDataObject, creditDetail, fiscalityData) {
         const annualData = SimulatorInvestDatasCalculator.annualCharges(simulatorDataObject, creditDetail);
         const cashflowBrut = Tools.roundNumber(simulatorDataObject.userEstate.monthlyRent - creditDetail.mensuality,2);

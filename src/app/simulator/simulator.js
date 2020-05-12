@@ -10,6 +10,7 @@ const SimulatorAnnexCalculator = require("./simulator-annex-calculator");
 const SimulatorFiscalityCalculator = require("./simulator-fiscality-calculator");
 
 class Simulator {
+
     async getSimulationResultFromReq(req) {
         return new Promise(async (resolve, reject) => {
             let simulatorDataObject = await this._prepareSimulatorDataObject(req);
@@ -21,17 +22,16 @@ class Simulator {
             const creditDetails = SimulatorBankCalculator.getCreditDetails(simulatorDataObject, userInvestorProfil);
             sessionResult.rentaBrutte = SimulatorInvestDatasCalculator.calculateRentabilityBrut(simulatorDataObject, notarialCost);
             sessionResult.rentaNet = SimulatorInvestDatasCalculator.calculateRentaNet(simulatorDataObject, creditDetails);
-            const fiscalityData = SimulatorFiscalityCalculator.getFiscalityData(simulatorDataObject,creditDetails,notarialCost, userInvestorProfil);
+            const fiscalityData = SimulatorFiscalityCalculator.getFiscalityData(simulatorDataObject,creditDetails,agenceCharge, notarialCost, userInvestorProfil);
             sessionResult.cashflow = SimulatorInvestDatasCalculator.calculateCashflows(simulatorDataObject, creditDetails, fiscalityData);
+            simulatorDataObject.agenceCharge = agenceCharge;
+            simulatorDataObject.notarialCost = notarialCost;
+            simulatorDataObject.bankStats.creditDetail = creditDetails;
+            simulatorDataObject.userInvestorProfil = userInvestorProfil;
             resolve({
                 result: sessionResult,
-                notarialCost: notarialCost,
-                agenceCharge: agenceCharge,
                 simulatorDatas: simulatorDataObject,
-                userInvestData: userInvestorProfil,
-                creditDetail: creditDetails,
-                fiscality: fiscalityData,
-                annualCharge: SimulatorInvestDatasCalculator.annualCharges(simulatorDataObject, creditDetails)
+                fiscality: fiscalityData
             });
         });
     }

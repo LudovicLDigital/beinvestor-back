@@ -21,6 +21,14 @@ class SimulatorBankCalculator {
         }
         return totalCredit;
     }
+
+    /**
+     * Calculate the bankWarrantyCost and the bankFolderCost if not defined, it set the totalCredit & totalProjectCost too in simulatorDataObject
+     * @param req
+     * @param simulatorDataObject
+     * @param notarialCost
+     * @returns {*}
+     */
     static setBankCost(req, simulatorDataObject, notarialCost) {
         if(req.body.makeACredit) {
             let totalCredit = SimulatorBankCalculator.determineTotalCreditNeeded(req, simulatorDataObject, notarialCost);
@@ -59,7 +67,10 @@ class SimulatorBankCalculator {
     }
 
     /**
-     * Return an object with {mensuality, totalInterest, totalBankInsuranceCost, userEndettement, mensualityWithInsurance}
+     * Recover all detail of the credit which aren't in the simulatorDataObject.bankStats
+     * @param simulatorDataObject
+     * @param userInvestorProfil
+     * @returns {{mensuality: float, totalInterest: float, totalBankInsuranceCost: float, mensualityWithInsurance: float, userEndettement: float}}
      */
     static getCreditDetails(simulatorDataObject, userInvestorProfil) {
         const creditTimeInMonth = simulatorDataObject.bankStats.creditTime * 12;
