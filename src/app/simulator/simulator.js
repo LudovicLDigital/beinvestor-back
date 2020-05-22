@@ -37,31 +37,31 @@ class Simulator {
     }
     _prepareUserInvestorDatas(req) {
         return new UserInvestorProfil(null,
-            req.body.professionnalSalary,
-            req.body.nbEstate,
-            req.body.annualRent, // must be only imposable revenu
-            req.body.actualCreditMensualities);
+            parseFloat(req.body.professionnalSalary),
+            parseFloat(req.body.nbEstate),
+            parseFloat(req.body.annualRent), // must be only imposable revenu
+            parseFloat(req.body.actualCreditMensualities));
     }
     async _prepareSimulatorDataObject(req) {
         const simulatorDataObject = new SimulatorDataObject();
         simulatorDataObject.fiscalType = await FiscalType.query().findById(req.body.fiscalTypeId);
         simulatorDataObject.userEstate = new UserEstate(null,
-            req.body.buyPrice,
-            req.body.surface,
-            req.body.workCost,
-            req.body.furnitureCost,
-            req.body.monthlyRent,
-            req.body.secureSaving,
-            req.body.previsionalRentCharge,
-            req.body.taxeFonciere,
-            req.body.chargeCopro,
+            parseFloat(req.body.buyPrice),
+            parseFloat(req.body.surface),
+            parseFloat(req.body.workCost),
+            parseFloat(req.body.furnitureCost),
+            parseFloat(req.body.monthlyRent),
+            parseFloat(req.body.secureSaving),
+            parseFloat(req.body.previsionalRentCharge),
+            parseFloat(req.body.taxeFonciere),
+            parseFloat(req.body.chargeCopro),
             req.user.data.userInfo.id);
         simulatorDataObject.userSimulatorSessionValues = new UserSimulatorSessionValues(null,
-            req.body.percentRentManagement / 100,
-            req.body.comptableCost,
-            req.body.pnoCost,
-            req.body.gliPercent / 100,
-            req.body.vlInsurancePercent / 100);
+            parseFloat(req.body.percentRentManagement) / 100,
+            parseFloat(req.body.comptableCost),
+            parseFloat(req.body.pnoCost),
+            parseFloat(req.body.gliPercent) / 100,
+            parseFloat(req.body.vlInsurancePercent) / 100);
         return simulatorDataObject;
     }
 }

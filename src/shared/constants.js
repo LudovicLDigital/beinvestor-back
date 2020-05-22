@@ -19,6 +19,7 @@ exports.T_USER_GROUP = 'user-groups';
 exports.T_CITY = 'city';
 exports.T_GEO_ADRESS = 'geo_adress';
 exports.T_PICTURE = 'picture';
+exports.T_FISCAL_TYPE = 'fiscal_type';
 // SIMULATOR
 exports.SIMULATOR = 'permForSimulator';
 // USER STATUS (role)

@@ -8,7 +8,7 @@ class SimulatorAnnexCalculator {
     static getFAI(req, simulatorDataObject) {
         let agenceCharge;
         if (req.body.faiPercent) {
-            agenceCharge = (simulatorDataObject.userEstate.buyPrice - (simulatorDataObject.userEstate.buyPrice/(1+(req.body.faiPercent / 100))));
+            agenceCharge = (simulatorDataObject.userEstate.buyPrice - (simulatorDataObject.userEstate.buyPrice/(1+(parseFloat(req.body.faiPercent) / 100))));
         } else if(!req.body.noFai && !req.body.faiPercent) {
             agenceCharge = (simulatorDataObject.userEstate.buyPrice - (simulatorDataObject.userEstate.buyPrice/(1+FAI_PERCENT)));
         } else {
@@ -19,8 +19,8 @@ class SimulatorAnnexCalculator {
     static getNotarialCost(simulatorDataObject, req) {
         const agenceCharge = SimulatorAnnexCalculator.getFAI(req, simulatorDataObject);
         const buildingCost = simulatorDataObject.userEstate.buyPrice - agenceCharge;
-        return (req.body.notarialCost && req.body.notarialCost > 0)
-            ? req.body.notarialCost
+        return (req.body.notarialCost && parseFloat(req.body.notarialCost) > 0)
+            ? parseFloat(req.body.notarialCost)
             : Tools.roundNumber(NOTARIAL_PERCENT * buildingCost,2);
     }
 }
