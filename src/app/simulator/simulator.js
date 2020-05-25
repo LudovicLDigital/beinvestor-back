@@ -14,7 +14,7 @@ class Simulator {
     async getSimulationResultFromReq(req) {
         return new Promise(async (resolve, reject) => {
             let simulatorDataObject = await this._prepareSimulatorDataObject(req);
-            const userInvestorProfil = this._prepareUserInvestorDatas(req);
+            const userInvestorProfil = this._prepareUserInvestorDatas(req.body);
             const notarialCost = SimulatorAnnexCalculator.getNotarialCost(simulatorDataObject, req);
             const agenceCharge = SimulatorAnnexCalculator.getFAI(req, simulatorDataObject);
             simulatorDataObject = SimulatorBankCalculator.setBankCost(req, simulatorDataObject, notarialCost);
@@ -35,34 +35,58 @@ class Simulator {
             });
         });
     }
-    _prepareUserInvestorDatas(req) {
+    _prepareUserInvestorDatas(reqBody) {
+        const professionnalSalary = (Number.isNaN(Number.parseFloat(reqBody.professionnalSalary)) ? 0 : Number.parseFloat(reqBody.professionnalSalary));
+        const nbEstate = (Number.isNaN(Number.parseFloat(reqBody.nbEstate)) ? 0 : Number.parseFloat(reqBody.nbEstate));
+        const annualRent = (Number.isNaN(Number.parseFloat(reqBody.annualRent)) ? 0 : Number.parseFloat(reqBody.annualRent));
+        const actualCreditMensualities = (Number.isNaN(Number.parseFloat(reqBody.actualCreditMensualities)) ? 0 : Number.parseFloat(reqBody.actualCreditMensualities));
         return new UserInvestorProfil(null,
-            parseFloat(req.body.professionnalSalary),
-            parseFloat(req.body.nbEstate),
-            parseFloat(req.body.annualRent), // must be only imposable revenu
-            parseFloat(req.body.actualCreditMensualities));
+            professionnalSalary,
+            nbEstate,
+            annualRent, // must be only imposable revenu
+            actualCreditMensualities);
     }
     async _prepareSimulatorDataObject(req) {
         const simulatorDataObject = new SimulatorDataObject();
         simulatorDataObject.fiscalType = await FiscalType.query().findById(req.body.fiscalTypeId);
-        simulatorDataObject.userEstate = new UserEstate(null,
-            parseFloat(req.body.buyPrice),
-            parseFloat(req.body.surface),
-            parseFloat(req.body.workCost),
-            parseFloat(req.body.furnitureCost),
-            parseFloat(req.body.monthlyRent),
-            parseFloat(req.body.secureSaving),
-            parseFloat(req.body.previsionalRentCharge),
-            parseFloat(req.body.taxeFonciere),
-            parseFloat(req.body.chargeCopro),
-            req.user.data.userInfo.id);
-        simulatorDataObject.userSimulatorSessionValues = new UserSimulatorSessionValues(null,
-            parseFloat(req.body.percentRentManagement) / 100,
-            parseFloat(req.body.comptableCost),
-            parseFloat(req.body.pnoCost),
-            parseFloat(req.body.gliPercent) / 100,
-            parseFloat(req.body.vlInsurancePercent) / 100);
+        simulatorDataObject.userEstate = this._prepareUserEstate(req.body);
+        simulatorDataObject.userSimulatorSessionValues = this._prepareUserSimulatorSessionValues(req.body);
         return simulatorDataObject;
+    }
+    _prepareUserSimulatorSessionValues(reqBody){
+        const percentRentManagement = (Number.isNaN(Number.parseFloat(reqBody.percentRentManagement)) ? null : Number.parseFloat(reqBody.percentRentManagement)) / 100;
+        const comptableCost = (Number.isNaN(Number.parseFloat(reqBody.comptableCost)) ? 0 : Number.parseFloat(reqBody.comptableCost));
+        const pnoCost = (Number.isNaN(Number.parseFloat(reqBody.pnoCost)) ? null : Number.parseFloat(reqBody.pnoCost));
+        const gliPercent = (Number.isNaN(Number.parseFloat(reqBody.gliPercent)) ? null : Number.parseFloat(reqBody.gliPercent)) / 100;
+        const vlInsurancePercent = (Number.isNaN(Number.parseFloat(reqBody.vlInsurancePercent)) ? null : Number.parseFloat(reqBody.vlInsurancePercent)) / 100;
+        return new UserSimulatorSessionValues(null,
+            percentRentManagement ,
+            comptableCost,
+            pnoCost,
+            gliPercent ,
+            vlInsurancePercent );
+    }
+    _prepareUserEstate(reqBody, userId) {
+        const buyPrice = (Number.isNaN(Number.parseFloat(reqBody.buyPrice)) ? 0 : Number.parseFloat(reqBody.buyPrice));
+        const surface = (Number.isNaN(Number.parseFloat(reqBody.surface)) ? 0 : Number.parseFloat(reqBody.surface));
+        const workCost = (Number.isNaN(Number.parseFloat(reqBody.workCost)) ? 0 : Number.parseFloat(reqBody.workCost));
+        const furnitureCost = (Number.isNaN(Number.parseFloat(reqBody.furnitureCost)) ? 0 : Number.parseFloat(reqBody.furnitureCost));
+        const monthlyRent = (Number.isNaN(Number.parseFloat(reqBody.monthlyRent)) ? 0 : Number.parseFloat(reqBody.monthlyRent));
+        const secureSaving = (Number.isNaN(Number.parseFloat(reqBody.secureSaving)) ? 0 : Number.parseFloat(reqBody.secureSaving));
+        const previsionalRentCharge = (Number.isNaN(Number.parseFloat(reqBody.previsionalRentCharge)) ? 0 : Number.parseFloat(reqBody.previsionalRentCharge));
+        const taxeFonciere = (Number.isNaN(Number.parseFloat(reqBody.taxeFonciere)) ? 0 : Number.parseFloat(reqBody.taxeFonciere));
+        const chargeCopro = (Number.isNaN(Number.parseFloat(reqBody.chargeCopro)) ? 0 : Number.parseFloat(reqBody.chargeCopro));
+        return new UserEstate(null,
+            buyPrice,
+            surface,
+            workCost,
+            furnitureCost,
+            monthlyRent,
+            secureSaving,
+            previsionalRentCharge,
+            taxeFonciere,
+            chargeCopro,
+            userId);
     }
 }
 module.exports = Simulator;

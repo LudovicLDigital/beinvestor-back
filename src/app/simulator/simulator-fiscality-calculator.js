@@ -155,8 +155,14 @@ class SimulatorFiscalityCalculator {
         let taxPS, projectIR, allRevenuTaxe;
         const totalUserRevenu = userInvestorProfil.professionnalSalary + userInvestorProfil.annualRent;
         if (imposableRent <= 0 ) {
-            taxPS = projectIR = 0;
+            taxPS = 0;
+            projectIR = 0;
             allRevenuTaxe = SimulatorFiscalityCalculator._splitTMI(totalUserRevenu);
+            return {
+                taxPS: Tools.roundNumber(taxPS,2),
+                taxIR: Tools.roundNumber(projectIR,2),
+                calculatedTMI: allRevenuTaxe.tmi
+            }
         } else {
             /**
              * Dans le cas LMP pas de PS mais charges sociales ( SOCIAL_CHARGES_PERCENT )
@@ -170,12 +176,13 @@ class SimulatorFiscalityCalculator {
             const totalUserRevenuWithProject = totalUserRevenu + imposableRent;
             allRevenuTaxe = SimulatorFiscalityCalculator._splitTMI(totalUserRevenuWithProject);
             projectIR = allRevenuTaxe.totalImposition - baseUserTaxes.totalImposition;
+            return {
+                taxPS: Tools.roundNumber(taxPS,2),
+                taxIR: Tools.roundNumber(projectIR,2),
+                calculatedTMI: allRevenuTaxe.tmi
+            }
         }
-        return {
-            taxPS: Tools.roundNumber(taxPS,2),
-            taxIR: Tools.roundNumber(projectIR,2),
-            calculatedTMI: allRevenuTaxe.tmi
-        }
+
     }
 
     /**
@@ -231,7 +238,11 @@ class SimulatorFiscalityCalculator {
         if (amortissement !== null) {
             totalRevenuTaxablesAfterCharges = totalRevenuTaxablesAfterCharges - amortissement.for5Year;
         }
-        return Tools.roundNumber(totalRevenuTaxablesAfterCharges,2);
+        if (totalRevenuTaxablesAfterCharges < 0) {
+            return 0;
+        } else {
+            return Tools.roundNumber(totalRevenuTaxablesAfterCharges, 2);
+        }
     }
 }
 module.exports = SimulatorFiscalityCalculator;

@@ -35,32 +35,37 @@ class SimulatorBankCalculator {
     static setBankCost(req, simulatorDataObject, notarialCost) {
         if(req.body.makeACredit) {
             let totalCredit = SimulatorBankCalculator.determineTotalCreditNeeded(req, simulatorDataObject, notarialCost);
+            const bodyWarrantyCost = (Number.isNaN(Number.parseFloat(req.body.creditWarrantyCost)) ? null : Number.parseFloat(req.body.creditWarrantyCost));
+            const bodyBankCharges = (Number.isNaN(Number.parseFloat(req.body.bankCharges)) ? null : Number.parseFloat(req.body.bankCharges));
+            const bodyApport = (Number.isNaN(Number.parseFloat(req.body.apport)) ? 0 : Number.parseFloat(req.body.apport));
+            const bodyCreditTime = (Number.isNaN(Number.parseFloat(req.body.creditTime)) ? 20 : Number.parseFloat(req.body.creditTime));
+            const bodyBankRate = (Number.isNaN(Number.parseFloat(req.body.bankRate)) ? 1.5 : Number.parseFloat(req.body.bankRate));
             let bankWarrantyCost = 0;
             let bankFolderCost = 0;
-            if (parseFloat(req.body.bankCharges) > 0) {
-                bankFolderCost = parseFloat(req.body.bankCharges);
-            } else {
+            if (bodyBankCharges > 0) {
+                bankFolderCost = bodyBankCharges;
+            } else if (bodyBankCharges === null) {
                 bankFolderCost = BANK_FOLDER_COST;
             }
             totalCredit = totalCredit + bankFolderCost;
-            if (parseFloat(req.body.creditWarrantyCost) > 0) {
-                bankWarrantyCost = parseFloat(req.body.creditWarrantyCost);
-            } else {
+            if (bodyWarrantyCost > 0) {
+                bankWarrantyCost = bodyWarrantyCost;
+            } else if(bodyWarrantyCost === null) {
                 bankWarrantyCost = Tools.roundNumber(totalCredit * BANK_GARANTY_PERCENT,2);
             }
             totalCredit = totalCredit + bankWarrantyCost;
             simulatorDataObject.bankStats = new BankStats(null,
                 req.body.is110,
-                parseFloat(req.body.apport),
+                bodyApport,
                 bankWarrantyCost,
                 bankFolderCost,
-                parseFloat(req.body.creditTime),
-                Tools.roundNumber(parseFloat(req.body.bankRate) / 100, 4));
+                bodyCreditTime,
+                Tools.roundNumber(bodyBankRate / 100, 4));
             simulatorDataObject.totalCredit = Tools.roundNumber(totalCredit, 2);
             if (!req.body.includeFurnitureInCredit) {
-                simulatorDataObject.totalProjectCost = Tools.roundNumber(totalCredit + simulatorDataObject.userEstate.furnitureCost + parseFloat(req.body.apport), 2);
+                simulatorDataObject.totalProjectCost = Tools.roundNumber(totalCredit + simulatorDataObject.userEstate.furnitureCost + bodyApport, 2);
             } else {
-                simulatorDataObject.totalProjectCost = Tools.roundNumber(totalCredit + parseFloat(req.body.apport), 2);
+                simulatorDataObject.totalProjectCost = Tools.roundNumber(totalCredit + bodyApport, 2);
             }
         } else {
             simulatorDataObject.bankStats = null;

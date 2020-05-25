@@ -6,7 +6,7 @@ const simulatorRouter = require('../../shared/config/router-configurator');
 const Constants = require('../../shared/constants');
 /** Set default endpoint to run simulator calc**/
 simulatorRouter.route('/api/fiscal-type')
-    .post(Auth.authenticationToken, Access.haveAccess(Constants.READ, Constants.T_FISCAL_TYPE), function (req, res) {
+    .get(Auth.authenticationToken, Access.haveAccess(Constants.READ, Constants.T_FISCAL_TYPE), function (req, res) {
         console.log(`====TRYING GET FISCAL TYPES===`);
         FiscalTypeRepository.getAll().then((types) => {
             res.json(types);

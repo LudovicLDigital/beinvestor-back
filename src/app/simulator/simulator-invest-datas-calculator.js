@@ -25,24 +25,24 @@ class SimulatorInvestDatasCalculator {
      * @param creditDetail
      * @returns {{gliCost: float, annualRent: number, vlInsuranceCost: float, creditInsurance: number, secureCost: *, rentGestionCost: float}}
      */
-    static annualCharges(simulatorDataObject, creditDetail) {
+     static annualCharges(simulatorDataObject, creditDetail) {
         const sessionData = simulatorDataObject.userSimulatorSessionValues;
         const estateData = simulatorDataObject.userEstate;
         const annualRent = (estateData.monthlyRent * 12);
-        const vlInsuranceCost = typeof sessionData.vlInsurancePercent !== "undefined" ?
+        const vlInsuranceCost = (typeof sessionData.vlInsurancePercent !== "undefined" && sessionData.vlInsurancePercent !== null) ?
             Tools.roundNumber(sessionData.vlInsurancePercent * annualRent,2) :
             Tools.roundNumber(GVL_PERCENT * annualRent,2);
-        const gliCost = typeof sessionData.gliPercent !== "undefined" ?
+        const gliCost = (typeof sessionData.gliPercent !== "undefined" && sessionData.gliPercent !== null)  ?
             Tools.roundNumber(sessionData.gliPercent * annualRent, 2):
             Tools.roundNumber(GLI_PERCENT * annualRent, 2);
-        const secureCost = typeof estateData.secureSaving !== "undefined" ?
+        const secureCost = (typeof estateData.secureSaving !== "undefined" && estateData.secureSaving !== null ) ?
             estateData.secureSaving * 12 :
             Tools.roundNumber((estateData.buyPrice + estateData.workCost * ESTATE_PREVENTION_PERCENT),2);
         let creditInsurance = 0;
         if (simulatorDataObject.bankStats && simulatorDataObject.bankStats !== null) {
              creditInsurance = Tools.roundNumber(creditDetail.totalBankInsuranceCost / simulatorDataObject.bankStats.creditTime, 2);
         }
-        const rentGestionCost = typeof sessionData.percentRentManagement !== "undefined" ?
+        const rentGestionCost = (typeof sessionData.percentRentManagement !== "undefined" && sessionData.percentRentManagement !== null )?
             Tools.roundNumber(sessionData.percentRentManagement * annualRent, 2) :
             Tools.roundNumber(annualRent * RENT_GESTION_PERCENT, 2);
         return {
@@ -62,6 +62,7 @@ class SimulatorInvestDatasCalculator {
      * @returns {float}
      */
     static calculateRentaNet(simulatorDataObject, creditDetail) {
+
         const sessionData = simulatorDataObject.userSimulatorSessionValues;
         const estateData = simulatorDataObject.userEstate;
         const annualData = SimulatorInvestDatasCalculator.annualCharges(simulatorDataObject, creditDetail);
