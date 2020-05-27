@@ -105,7 +105,7 @@ class SimulatorInvestDatasCalculator {
         const cashflowBrut = Tools.roundNumber(simulatorDataObject.userEstate.monthlyRent - creditDetail.mensuality,2);
         const totalRevenuCharged = SimulatorInvestDatasCalculator.totalRevenuCharged(annualData, simulatorDataObject.userEstate, simulatorDataObject.userSimulatorSessionValues);
         const cashflowNet = Tools.roundNumber((totalRevenuCharged / 12) - creditDetail.mensuality,2);
-        const cashflowNetNet = cashflowNet - ((fiscalityData.taxPS + fiscalityData.taxIR)/12);
+        const cashflowNetNet =  Tools.roundNumber(cashflowNet - ((fiscalityData.taxPS + fiscalityData.taxIR)/12), 2);
         return {
             cashflowBrut,
             cashflowNet,
