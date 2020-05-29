@@ -81,20 +81,31 @@ class SimulatorBankCalculator {
      * @returns {{mensuality: float, totalInterest: float, totalBankInsuranceCost: float, mensualityWithInsurance: float, userEndettement: float}}
      */
     static getCreditDetails(simulatorDataObject, userInvestorProfil) {
-        const creditTimeInMonth = simulatorDataObject.bankStats.creditTime * 12;
-        const mensuality = SimulatorBankCalculator.vpm(simulatorDataObject.totalCredit, simulatorDataObject.bankStats.creditTime, simulatorDataObject.bankStats.bankRate) / 12;
-        const totalInterest = (mensuality * creditTimeInMonth) - simulatorDataObject.totalCredit;
-        const totalBankInsuranceCost = simulatorDataObject.totalCredit * BANK_WARRANTY_INSURANCE_PERCENT;
-        const mensualityWithInsurance = mensuality + (totalBankInsuranceCost/creditTimeInMonth);
-        const monthlyRevenuUser = (userInvestorProfil.professionnalSalary + userInvestorProfil.annualRent)/12;
-        const userEndettement = ((mensuality + userInvestorProfil.actualCreditMensualities)/(monthlyRevenuUser + (simulatorDataObject.userEstate.monthlyRent *0.7))) * 100;
-        return {
-            mensuality : Tools.roundNumber(mensuality,2),
-            totalInterest : Tools.roundNumber(totalInterest,2),
-            totalBankInsuranceCost : Tools.roundNumber(totalBankInsuranceCost,2),
-            mensualityWithInsurance : Tools.roundNumber(mensualityWithInsurance,2),
-            userEndettement : Tools.roundNumber(userEndettement,2)
-        };
+        const monthlyRevenuUser = (userInvestorProfil.professionnalSalary + userInvestorProfil.annualRent) / 12;
+        if (simulatorDataObject.bankStats && simulatorDataObject.bankStats !== null) {
+            const creditTimeInMonth = simulatorDataObject.bankStats.creditTime * 12;
+            const mensuality = SimulatorBankCalculator.vpm(simulatorDataObject.totalCredit, simulatorDataObject.bankStats.creditTime, simulatorDataObject.bankStats.bankRate) / 12;
+            const totalInterest = (mensuality * creditTimeInMonth) - simulatorDataObject.totalCredit;
+            const totalBankInsuranceCost = simulatorDataObject.totalCredit * BANK_WARRANTY_INSURANCE_PERCENT;
+            const mensualityWithInsurance = mensuality + (totalBankInsuranceCost / creditTimeInMonth);
+            const userEndettement = ((mensuality + userInvestorProfil.actualCreditMensualities) / (monthlyRevenuUser + (simulatorDataObject.userEstate.monthlyRent * 0.7))) * 100;
+            return {
+                mensuality: Tools.roundNumber(mensuality, 2),
+                totalInterest: Tools.roundNumber(totalInterest, 2),
+                totalBankInsuranceCost: Tools.roundNumber(totalBankInsuranceCost, 2),
+                mensualityWithInsurance: Tools.roundNumber(mensualityWithInsurance, 2),
+                userEndettement: Tools.roundNumber(userEndettement, 2)
+            };
+        } else {
+            const userEndettement = ((userInvestorProfil.actualCreditMensualities) / (monthlyRevenuUser + (simulatorDataObject.userEstate.monthlyRent * 0.7))) * 100;
+            return {
+                mensuality: 0,
+                totalInterest: 0,
+                totalBankInsuranceCost: 0,
+                mensualityWithInsurance: 0,
+                userEndettement: Tools.roundNumber(userEndettement, 2)
+            };
+        }
     }
 
     /**

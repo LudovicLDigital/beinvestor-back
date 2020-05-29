@@ -197,7 +197,9 @@ class SimulatorFiscalityCalculator {
         const furnitureAM = Tools.roundNumber(simulatorDataObject.userEstate.furnitureCost / 5, 2);
         const agenceChargeAM = Tools.roundNumber(agenceCharge / 5,2);
         const notarialCostAM = Tools.roundNumber(notarialCost / 5,2);
-        const bankAM = Tools.roundNumber((simulatorDataObject.bankStats.bankCharges + simulatorDataObject.bankStats.creditWarrantyCost)/5,2);
+        const bankAM = (simulatorDataObject.bankStats && simulatorDataObject.bankStats !==null)
+            ? Tools.roundNumber((simulatorDataObject.bankStats.bankCharges + simulatorDataObject.bankStats.creditWarrantyCost)/5,2)
+            : 0;
         const workAM = Tools.roundNumber(simulatorDataObject.userEstate.workCost / 10,2);
         const estateAM = Tools.roundNumber((simulatorDataObject.userEstate.buyPrice - agenceCharge)/30,2);
         const until5YearAM = furnitureAM + agenceChargeAM + notarialCostAM + bankAM;
@@ -231,7 +233,9 @@ class SimulatorFiscalityCalculator {
         const totalRevenuChargedHC = SimulatorInvestDatasCalculator.totalRevenuCharged(annualData, simulatorDataObject.userEstate, simulatorDataObject.userSimulatorSessionValues);
         let totalRevenuTaxablesAfterCharges = totalRevenuChargedHC + (simulatorDataObject.userEstate.previsionalRentCharge * 12) + annualData.secureCost;
         // deduire les interêts annuel moyen
-        totalRevenuTaxablesAfterCharges = totalRevenuTaxablesAfterCharges - (creditDetail.totalInterest / simulatorDataObject.bankStats.creditTime);
+        if (simulatorDataObject.bankStats && simulatorDataObject.bankStats !== null) {
+            totalRevenuTaxablesAfterCharges = totalRevenuTaxablesAfterCharges - (creditDetail.totalInterest / simulatorDataObject.bankStats.creditTime);
+        }
         if (simulatorDataObject.fiscalType.name === LMNP || simulatorDataObject.fiscalType.name === LMP){
             totalRevenuTaxablesAfterCharges = totalRevenuTaxablesAfterCharges - CFE_MINIMAL; // ajout de la CFE car amortissement forcément en meublé
         }

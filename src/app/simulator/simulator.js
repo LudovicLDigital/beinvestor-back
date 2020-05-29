@@ -26,7 +26,9 @@ class Simulator {
             sessionResult.cashflow = SimulatorInvestDatasCalculator.calculateCashflows(simulatorDataObject, creditDetails, fiscalityData);
             simulatorDataObject.agenceCharge = agenceCharge;
             simulatorDataObject.notarialCost = notarialCost;
-            simulatorDataObject.bankStats.creditDetail = creditDetails;
+            if (simulatorDataObject.bankStats && simulatorDataObject.bankStats !== null) {
+                simulatorDataObject.bankStats.creditDetail = creditDetails;
+            }
             simulatorDataObject.userInvestorProfil = userInvestorProfil;
             resolve({
                 result: sessionResult,
