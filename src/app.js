@@ -1,5 +1,5 @@
 require('dotenv').config();
-const hostname = '192.168.1.57';
+const hostname = process.env.SERVER_URL;
 const port = 3000;
 const app = require('./shared/config/main-app-router');
 const http = require('http').Server(app);
