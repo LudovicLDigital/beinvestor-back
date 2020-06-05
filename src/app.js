@@ -1,6 +1,6 @@
-require('dotenv').config();
+require('custom-env').env(true);
 const hostname = process.env.SERVER_URL;
-const port = 3000;
+const port = process.env.SERVER_PORT;
 const app = require('./shared/config/main-app-router');
 const http = require('http').Server(app);
 const SocketManager = require('./shared/util/socket-manager');
