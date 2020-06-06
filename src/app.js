@@ -56,3 +56,5 @@ http.listen(port, hostname, function(){
     process.env.SERVER_ROOT = path.join(__dirname, '/..');
 });
 
+// require('crypto').randomBytes(32).toString('hex')  Use this to generate keys
+

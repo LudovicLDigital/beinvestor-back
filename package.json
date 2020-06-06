@@ -10,11 +10,14 @@
     "db-rollback-latest": "knex migrate:rollback",
     "db-fill-seed": "knex seed:run",
     "db-fill-users": "node ./pre-fill-script/prepare-base-users.js",
+    "db-fill-users-prod": "cross-env NODE_ENV=production node ./pre-fill-script/prepare-base-users.js",
     "serverRun": "cross-env NODE_ENV=dev nodemon ./src/app.js",
-    "serverRunProd": "pm2 start ecosystem.config.js",
+    "serverRunStaging": "cross-env NODE_ENV=staging nodemon ./src/app.js",
+    "serverRunProd": "cross-env NODE_ENV=production pm2 start ecosystem.config.js",
     "serverStopProd": "pm2 stop 0",
     "prodLogs": "pm2 logs",
-    "prodUIManage": "pm2 plus"
+    "prodUIManage": "pm2 plus",
+    "initProdDb": "cross-env NODE_ENV=production knex migrate:latest && cross-env NODE_ENV=production knex seed:run"
   },
   "keywords": [],
   "author": "",
