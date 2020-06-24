@@ -17,27 +17,54 @@ const crypto = require('crypto');
 authRouter.route('/api/login')
     .post(function(req, res) {
         console.log(`====TRYING TO GET USER BY LOGIN REQUESTED : ${req.body.login}===`);
-        UserRepository.getUserByLogin(req.body.login).then((userFound) => {
-            if (userFound && userFound !== null ) {
-                PasswordCrypter.comparePassword(userFound.password, req.body.password).then((match) => {
-                    if (match) {
-                        TokenSaver.generateAndSaveUserFoundToken(req, res, userFound)
-                    } else {
-                        ErrorHandler.errorHandler({type: Constants.UNAUTHORIZE, message: 'Mot de passe incorrect'}, res);
-                    }
-                }).catch((rejected) => {
-                    console.log('REJECTED : ' + rejected);
-                    ErrorHandler.errorHandler(rejected, res);
-                });
-            } else {
-                ErrorHandler.errorHandler({message: 'Aucun login correspondant'}, res);
-            }
-        }).catch((err) => {
-            console.log(`getUserByLogin HAVE FAILED, error : ${err}`);
-            ErrorHandler.errorHandler(err, res);
-        });
+        const mailRgx = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9._-]{2,}\.[a-z]{2,4}$/;
+        if (mailRgx.test(req.body.login)) {
+            connectUserByMail(req, res);
+        } else {
+            connectUserBylogin(req, res);
+        }
     });
-
+function connectUserByMail(req, res) {
+    console.log(`===TRYING connectUserByMail : ${req.body.login}===`);
+    UserRepository.getUserByMail(req.body.login).then((userFound) => {
+        if (userFound && userFound !== null) {
+            checkPassWords(userFound, req, res);
+        } else {
+            ErrorHandler.errorHandler({message: 'Aucun email correspondant'}, res);
+        }
+    }).catch((err) => {
+        console.log(`connectUserByMail HAVE FAILED, error : ${err}`);
+        ErrorHandler.errorHandler(err, res);
+    });
+}
+function connectUserBylogin(req, res) {
+    console.log(`===TRYING connectUserBylogin : ${req.body.login}===`);
+    UserRepository.getUserByLogin(req.body.login).then((userFound) => {
+        if (userFound && userFound !== null) {
+           checkPassWords(userFound, req, res);
+        } else {
+            ErrorHandler.errorHandler({message: 'Aucun login correspondant'}, res);
+        }
+    }).catch((err) => {
+        console.log(`connectUserBylogin HAVE FAILED, error : ${err}`);
+        ErrorHandler.errorHandler(err, res);
+    });
+}
+function checkPassWords(userFound, req, res) {
+    PasswordCrypter.comparePassword(userFound.password, req.body.password).then((match) => {
+        if (match) {
+            TokenSaver.generateAndSaveUserFoundToken(req, res, userFound)
+        } else {
+            ErrorHandler.errorHandler({
+                type: Constants.UNAUTHORIZE,
+                message: 'Mot de passe incorrect'
+            }, res);
+        }
+    }).catch((rejected) => {
+        console.log('REJECTED : ' + rejected);
+        ErrorHandler.errorHandler(rejected, res);
+    });
+}
 /**
  * You this endPoint to recover a new Access-token with passed body token
  */
