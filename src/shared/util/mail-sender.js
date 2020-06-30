@@ -3,11 +3,11 @@ const ejs = require("ejs");
 const MailSender = {
     configureSMTP() {
         MailSender.transport = nodemailer.createTransport({
-            host: 'smtp.mailtrap.io',
-            port: 2525,
+            host: process.env.MAIL_HOST,
+            port: process.env.MAIL_PORT,
             auth: {
-                user: '6ce1b94b9f7770',
-                pass: 'e7e8a04016fa4b'
+                user: process.env.MAIL_AUTH_USER,
+                pass: process.env.MAIL_AUTH_PASS
             }
         });
     },
@@ -17,7 +17,7 @@ const MailSender = {
                 console.log(err);
             } else {
                 const message = {
-                    from: 'Ludovic@beinvestor-team.com', // Sender address
+                    from: process.env.MAIL_TEAM, // Sender address
                     to: to,         // List of recipients
                     subject: subject, // Subject line
                     html: data,

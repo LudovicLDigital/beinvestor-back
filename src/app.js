@@ -1,6 +1,6 @@
-require('dotenv').config();
-const hostname = '192.168.1.57';
-const port = 3000;
+require('custom-env').env(true);
+const hostname = process.env.SERVER_URL;
+const port = process.env.SERVER_PORT;
 const app = require('./shared/config/main-app-router');
 const http = require('http').Server(app);
 const SocketManager = require('./shared/util/socket-manager');
@@ -55,4 +55,6 @@ http.listen(port, hostname, function(){
     console.log("Serve starting on -----> http://"+ hostname +":"+port+"\n");
     process.env.SERVER_ROOT = path.join(__dirname, '/..');
 });
+
+// require('crypto').randomBytes(32).toString('hex')  Use this to generate keys
 
