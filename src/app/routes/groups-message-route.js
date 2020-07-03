@@ -10,7 +10,7 @@ const SocketManager = require('../../shared/util/socket-manager');
 groupMessageRouter.route('/api/group-message')
 // create message
     .post(Auth.authenticationToken, Access.haveAccess(Constants.CREATE, Constants.T_GROUP_MESSAGE), async function(req, res){
-        console.log(`====TRYING TO CREATE A MESSAGE ===`);
+        console.log(`${new Date()}====TRYING TO CREATE A MESSAGE ===`);
         const messageDatas = {
             authorName: req.body.authorName,
             content: req.body.content,
@@ -23,7 +23,7 @@ groupMessageRouter.route('/api/group-message')
             GroupMessageRepository.createMessage(messageDatas).then((message) => {
                 res.status(201).json(message);
             }).catch((err) => {
-                console.log(`/group-message CREATE HAVE FAILED, error : ${err}`);
+                console.error(`/group-message CREATE HAVE FAILED, error : ${err}`);
                 ErrorHandler.errorHandler(err, res);
             });
         } else {
@@ -32,7 +32,7 @@ groupMessageRouter.route('/api/group-message')
     })
     // update message
     .put(Auth.authenticationToken, Access.haveAccess(Constants.UPDATE, Constants.T_GROUP_MESSAGE), async function (req, res) {
-        console.log(`====TRYING UPDATE GROUP MESSAGE ${req.body.id}===`);
+        console.log(`${new Date()}====TRYING UPDATE GROUP MESSAGE ${req.body.id}===`);
         const messageDatas = {
             id: req.body.id,
             authorName: req.body.authorName,
@@ -45,7 +45,7 @@ groupMessageRouter.route('/api/group-message')
             GroupMessageRepository.updateMessage(messageDatas).then((message) => {
                 res.json(message);
             }).catch((err) => {
-                console.log(`/group-message UPDATE HAVE FAILED, error : ${err}`);
+                console.error(`/group-message UPDATE HAVE FAILED, error : ${err}`);
                 ErrorHandler.errorHandler(err, res);
             });
         } else {
@@ -53,18 +53,18 @@ groupMessageRouter.route('/api/group-message')
         }
     })
     .delete(Auth.authenticationToken, Access.haveAccess(Constants.DELETE_ALL, Constants.T_GROUP_MESSAGE), function (req, res) {
-        console.log(`====TRYING DELETE MESSAGE PASSED ${req.body.id}===`);
+        console.log(`${new Date()}====TRYING DELETE MESSAGE PASSED ${req.body.id}===`);
         GroupMessageRepository.deleteAmessage(req.body.id).then(() => {
             res.sendStatus(204);
         }).catch((err) => {
-            console.log(`/group-message delete HAVE FAILED, error : ${err}`);
+            console.error(`${new Date()} /group-message delete HAVE FAILED, error : ${err}`);
             ErrorHandler.errorHandler(err, res);
         });
     });
 groupMessageRouter.route('/api/group-message/group/:group_id/:pagination')
 // get the list of message :pagination is an object as {"page": number, "numberItem": number}
     .get(Auth.authenticationToken, Access.haveAccess(Constants.READ_ALL, Constants.T_GROUP_MESSAGE), function(req, res){
-        console.log(`====TRYING TO GET MESSAGES OF THE GROUP : ${req.params.group_id}===`);
+        console.log(`${new Date()}====TRYING TO GET MESSAGES OF THE GROUP : ${req.params.group_id}===`);
         const paginationParam = JSON.parse(req.params.pagination);
         let pagination = {
             page: 0,
@@ -77,7 +77,7 @@ groupMessageRouter.route('/api/group-message/group/:group_id/:pagination')
         GroupMessageRepository.getAllMessageByGroupId(req.params.group_id, pagination).then((messageList) => {
             res.json(messageList);
         }).catch((err) => {
-            console.log(`/group-message/group/:group_id/:pagination GET HAVE FAILED, error : ${err}`);
+            console.error(`${new Date()} /group-message/group/:group_id/:pagination GET HAVE FAILED, error : ${err}`);
             ErrorHandler.errorHandler(err, res);
         });
     });
@@ -86,11 +86,11 @@ groupMessageRouter.route('/api/group-message/group/:group_id/:pagination')
  */
 groupMessageRouter.route('/api/group-message/count/user/:user_info_id')
     .get(Auth.authenticationToken, Access.haveAccess(Constants.READ, Constants.T_GROUP_MESSAGE), function(req, res){
-        console.log(`====TRYING TO GET COUNT OF ALL USER MESSAGE : ${req.params.user_info_id}===`);
+        console.log(`${new Date()}====TRYING TO GET COUNT OF ALL USER MESSAGE : ${req.params.user_info_id}===`);
         GroupMessageRepository.getCountForAllMessageOfUser(req.params.user_info_id).then((numberOfMessage) => {
             res.json(numberOfMessage["count(*)"]);
         }).catch((err) => {
-            console.log(`/group-message/count/user/:user_info_id GET COUNT HAVE FAILED, error : ${err}`);
+            console.error(`${new Date()} /group-message/count/user/:user_info_id GET COUNT HAVE FAILED, error : ${err}`);
             ErrorHandler.errorHandler(err, res);
         });
     });
@@ -99,11 +99,11 @@ groupMessageRouter.route('/api/group-message/count/user/:user_info_id')
  */
 groupMessageRouter.route('/api/group-message/count/user/:user_info_id/:group_id')
     .get(Auth.authenticationToken, Access.haveAccess(Constants.READ, Constants.T_GROUP_MESSAGE), function(req, res){
-        console.log(`====TRYING TO GET COUNT OF ALL USER MESSAGE IN GROUP: ${req.params.group_id}===`);
+        console.log(`${new Date()}====TRYING TO GET COUNT OF ALL USER MESSAGE IN GROUP: ${req.params.group_id}===`);
         GroupMessageRepository.getCountUserSMessagesInGroup(req.params.user_info_id, req.params.group_id).then((numberOfMessage) => {
             res.json(numberOfMessage["count(*)"]);
         }).catch((err) => {
-            console.log(`/group-message/count/user/:user_info_id/:group_id GET COUNT HAVE FAILED, error : ${err}`);
+            console.error(`${new Date()} /group-message/count/user/:user_info_id/:group_id GET COUNT HAVE FAILED, error : ${err}`);
             ErrorHandler.errorHandler(err, res);
         });
     });
@@ -112,22 +112,22 @@ groupMessageRouter.route('/api/group-message/count/user/:user_info_id/:group_id'
  */
 groupMessageRouter.route('/api/group-message/count/group/:group_id')
     .get(Auth.authenticationToken, Access.haveAccess(Constants.READ, Constants.T_GROUP_MESSAGE), function(req, res){
-        console.log(`====TRYING TO GET COUNT OF MESSAGE IN GROUP: ${req.params.group_id}===`);
+        console.log(`${new Date()}====TRYING TO GET COUNT OF MESSAGE IN GROUP: ${req.params.group_id}===`);
         GroupMessageRepository.getMessageCountForGroup(req.params.group_id).then((numberOfMessage) => {
             res.json(numberOfMessage["count(*)"]);
         }).catch((err) => {
-            console.log(`/group-message/count/group/:group_id GET COUNT HAVE FAILED, error : ${err}`);
+            console.error(`${new Date()} /group-message/count/group/:group_id GET COUNT HAVE FAILED, error : ${err}`);
             ErrorHandler.errorHandler(err, res);
         });
     });
 groupMessageRouter.route('/api/group-message/last/of/:group_id')
 // get the latest message of a group
     .get(Auth.authenticationToken, Access.haveAccess(Constants.READ, Constants.T_GROUP_MESSAGE),  function (req, res) {
-        console.log(`====TRYING GET LATEST MESSAGE OF GROUP : ${req.params.group_id}===`);
+        console.log(`${new Date()}====TRYING GET LATEST MESSAGE OF GROUP : ${req.params.group_id}===`);
         GroupMessageRepository.getLastGroupMessage(req.params.group_id).then((message) => {
             res.json(message);
         }).catch((err) => {
-            console.log(`/group-message/last/of/:group_id GET LAST HAVE FAILED, error : ${err}`);
+            console.error(`${new Date()} /group-message/last/of/:group_id GET LAST HAVE FAILED, error : ${err}`);
             ErrorHandler.errorHandler(err, res);
         });
     });

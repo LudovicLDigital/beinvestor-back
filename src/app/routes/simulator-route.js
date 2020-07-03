@@ -8,18 +8,18 @@ const Constants = require('../../shared/constants');
 /** Set default endpoint to run simulator calc**/
 simulatorRouter.route('/api/simulator')
     .post(Auth.authenticationToken, Access.haveAccess(Constants.READ, Constants.SIMULATOR), function (req, res) {
-        console.log(`====TRYING RUN SIMULATOR===`);
+        console.log(`${new Date()}====TRYING RUN SIMULATOR===`);
         const simulator = new Simulator();
         UserInfoRepository.getUserInfoByUserId(req.user.data.id).then((info) => {
             req.user.data.userInfo = info;
             simulator.getSimulationResultFromReq(req).then((simulatorResult) => {
                 res.json(simulatorResult);
             }).catch((err) => {
-                console.log(`/simulator HAVE FAILED on getSimulationResultFromReq, error : ${err}`);
+                console.error(`${new Date()} /simulator HAVE FAILED on getSimulationResultFromReq, error : ${err}`);
                 ErrorHandler.errorHandler(err, res);
             });
         }).catch((err) => {
-            console.log(`/simulator HAVE FAILED on getUserInfoByUserId, error : ${err}`);
+            console.error(`${new Date()} /simulator HAVE FAILED on getUserInfoByUserId, error : ${err}`);
             ErrorHandler.errorHandler(err, res);
         });
     });
