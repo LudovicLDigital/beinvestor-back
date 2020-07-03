@@ -37,7 +37,7 @@ class SimulatorInvestDatasCalculator {
             Tools.roundNumber(GLI_PERCENT * annualRent, 2);
         const secureCost = (typeof estateData.secureSaving !== "undefined" && estateData.secureSaving !== null ) ?
             estateData.secureSaving * 12 :
-            Tools.roundNumber((estateData.buyPrice + estateData.workCost * ESTATE_PREVENTION_PERCENT),2);
+            Tools.roundNumber(((estateData.buyPrice + estateData.workCost) * ESTATE_PREVENTION_PERCENT),2);
         let creditInsurance = 0;
         if (simulatorDataObject.bankStats && simulatorDataObject.bankStats !== null) {
              creditInsurance = Tools.roundNumber(creditDetail.totalBankInsuranceCost / simulatorDataObject.bankStats.creditTime, 2);
