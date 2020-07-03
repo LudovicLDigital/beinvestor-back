@@ -8,7 +8,7 @@ const Constants = require('../../shared/constants');
 cityRouter.route('/api/city/all/:pagination')
     // get All, :pagination is an object as {"page": number, "numberItem": number}
     .get(Auth.authenticationToken, Access.haveAccess(Constants.READ_ALL, Constants.T_CITY), async function(req, res){
-        console.log(`====TRYING TO GET ALL CITIES ===`);
+        console.log(`${new Date()}====TRYING TO GET ALL CITIES ===`);
         try {
             const paginationParam = JSON.parse(req.params.pagination);
             let pagination = {
@@ -22,7 +22,7 @@ cityRouter.route('/api/city/all/:pagination')
             CityRepository.getAllCity(pagination).then((cities) => {
                 res.json(cities);
             }).catch((err) => {
-                console.log(`/city GET ALL HAVE FAILED, error : ${err}`);
+                console.error(`${new Date()}/city GET ALL HAVE FAILED, error : ${err}`);
                 ErrorHandler.errorHandler(err, res);
             });
         } catch (error) {
@@ -33,7 +33,7 @@ cityRouter.route('/api/city/all/:pagination')
 cityRouter.route('/api/city/name/:name/:pagination')
 // get the list of city by name, :pagination is an object as {"page": number, "numberItem": number}
     .get(Auth.authenticationToken, Access.haveAccess(Constants.READ_ALL, Constants.T_CITY), function(req, res){
-        console.log(`====TRYING TO GET ALL CITIES WITH NAME: ${req.params.name}===`);
+        console.log(`${new Date()}====TRYING TO GET ALL CITIES WITH NAME: ${req.params.name}===`);
         const paginationParam = JSON.parse(req.params.pagination);
         let pagination = {
             page: 0,
@@ -46,29 +46,29 @@ cityRouter.route('/api/city/name/:name/:pagination')
         CityRepository.getByCityName(req.params.name, pagination).then((cities) => {
             res.json(cities);
         }).catch((err) => {
-            console.log(`/city/:name/:pagination GET BY NAME HAVE FAILED, error : ${err}`);
+            console.error(`${new Date()}/city/:name/:pagination GET BY NAME HAVE FAILED, error : ${err}`);
             ErrorHandler.errorHandler(err, res);
         });
     });
 cityRouter.route('/api/city/:city_id')
 // get the id's city
     .get(Auth.authenticationToken, Access.haveAccess(Constants.READ_ALL, Constants.T_CITY), function(req, res){
-        console.log(`====TRYING TO GET CITY WITH ID : ${req.params.city_id}===`);
+        console.log(`${new Date()}====TRYING TO GET CITY WITH ID : ${req.params.city_id}===`);
         CityRepository.getCityById(req.params.city_id).then((city) => {
             res.json(city);
         }).catch((err) => {
-            console.log(`/api/city/id/:city_id GET BY ID HAVE FAILED, error : ${err}`);
+            console.error(`${new Date()} /api/city/id/:city_id GET BY ID HAVE FAILED, error : ${err}`);
             ErrorHandler.errorHandler(err, res);
         });
     });
 cityRouter.route('/api/city/geo-adress-of/:city_id')
 // get the id's city
     .get(Auth.authenticationToken, Access.haveAccess(Constants.READ_ALL, Constants.T_CITY), function(req, res){
-        console.log(`====TRYING TO GET CITY's GEO ADRESS WITH CITY ID : ${req.params.city_id}===`);
+        console.log(`${new Date()}====TRYING TO GET CITY's GEO ADRESS WITH CITY ID : ${req.params.city_id}===`);
         CityRepository.getCityGeoAdress(req.params.city_id).then((geoAdress) => {
             res.json(geoAdress);
         }).catch((err) => {
-            console.log(`/api/city/:city_id GET BY ID HAVE FAILED, error : ${err}`);
+            console.error(`${new Date()} /api/city/:city_id GET BY ID HAVE FAILED, error : ${err}`);
             ErrorHandler.errorHandler(err, res);
         });
     });

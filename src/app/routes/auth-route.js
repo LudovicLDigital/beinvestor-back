@@ -16,7 +16,7 @@ const crypto = require('crypto');
  */
 authRouter.route('/api/login')
     .post(function(req, res) {
-        console.log(`====TRYING TO GET USER BY LOGIN REQUESTED : ${req.body.login}===`);
+        console.log(`${new Date()}====TRYING TO GET USER BY LOGIN REQUESTED : ${req.body.login}===`);
         const mailRgx = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9._-]{2,}\.[a-z]{2,4}$/;
         if (mailRgx.test(req.body.login)) {
             connectUserByMail(req, res);
@@ -25,7 +25,7 @@ authRouter.route('/api/login')
         }
     });
 function connectUserByMail(req, res) {
-    console.log(`===TRYING connectUserByMail : ${req.body.login}===`);
+    console.log(`${new Date()}===TRYING connectUserByMail : ${req.body.login}===`);
     UserRepository.getUserByMail(req.body.login).then((userFound) => {
         if (userFound && userFound !== null) {
             checkPassWords(userFound, req, res);
@@ -33,12 +33,12 @@ function connectUserByMail(req, res) {
             ErrorHandler.errorHandler({message: 'Aucun email correspondant'}, res);
         }
     }).catch((err) => {
-        console.log(`connectUserByMail HAVE FAILED, error : ${err}`);
+        console.error(`${new Date()} connectUserByMail HAVE FAILED, error : ${err}`);
         ErrorHandler.errorHandler(err, res);
     });
 }
 function connectUserBylogin(req, res) {
-    console.log(`===TRYING connectUserBylogin : ${req.body.login}===`);
+    console.log(`${new Date()}===TRYING connectUserBylogin : ${req.body.login}===`);
     UserRepository.getUserByLogin(req.body.login).then((userFound) => {
         if (userFound && userFound !== null) {
            checkPassWords(userFound, req, res);
@@ -46,7 +46,7 @@ function connectUserBylogin(req, res) {
             ErrorHandler.errorHandler({message: 'Aucun login correspondant'}, res);
         }
     }).catch((err) => {
-        console.log(`connectUserBylogin HAVE FAILED, error : ${err}`);
+        console.error(`${new Date()} connectUserBylogin HAVE FAILED, error : ${err}`);
         ErrorHandler.errorHandler(err, res);
     });
 }
@@ -61,7 +61,7 @@ function checkPassWords(userFound, req, res) {
             }, res);
         }
     }).catch((rejected) => {
-        console.log('REJECTED : ' + rejected);
+        console.error(`${new Date()} REJECTED :   ${rejected}`);
         ErrorHandler.errorHandler(rejected, res);
     });
 }
@@ -70,7 +70,7 @@ function checkPassWords(userFound, req, res) {
  */
 authRouter.route('/api/token')
     .post(function(req, res){
-        console.log(`====TRYING TO REQUEST A NEW ACCESS TOKEN WITH REFRESH TOKEN===`);
+        console.log(`${new Date()}====TRYING TO REQUEST A NEW ACCESS TOKEN WITH REFRESH TOKEN===`);
         const refreshToken = req.body.token;
         if (refreshToken == null) return res.sendStatus(401);
         const token = refreshToken.replace(/"/g, '');
@@ -85,12 +85,12 @@ authRouter.route('/api/token')
                     const accessToken = TokenSaver.generateToken(userFound);
                     res.json({accessToken: accessToken})
                 }).catch((error) => {
-                    console.log('/token HAVE FAILED on getAllPassedUserRoles, error : ${err}');
+                    console.error(`${new Date()} /token HAVE FAILED on getAllPassedUserRoles, error : ${err}`);
                     ErrorHandler.errorHandler(error, res);
                 })
             })
         }).catch((err) => {
-            console.log(`/token HAVE FAILED on getTokenSaved, error : ${err}`);
+            console.error(`${new Date()} /token HAVE FAILED on getTokenSaved, error : ${err}`);
             ErrorHandler.errorHandler(err, res);
         });
     });
@@ -99,13 +99,13 @@ authRouter.route('/api/token')
  */
 authRouter.route('/api/logout')
     .delete(Auth.authenticationToken, Access.haveAccess(Constants.DELETE, Constants.T_USER_TOKEN), function(req, res){
-        console.log(`====TRYING TO LOGOUT WITH TOKEN DELETION===`);
+        console.log(`${new Date()}====TRYING TO LOGOUT WITH TOKEN DELETION===`);
         Auth.currentUser = null;
         const token = req.body.token.replace(/"/g, '');
         UserTokenRepository.deleteToken(token).then(() => {
             res.sendStatus(204)
         }).catch((err) => {
-            console.log(`/logout HAVE FAILED, error : ${err}`);
+            console.error(`${new Date()} /logout HAVE FAILED, error : ${err}`);
             ErrorHandler.errorHandler(err, res);
         });
     });
@@ -114,7 +114,7 @@ authRouter.route('/api/logout')
  */
 authRouter.route('/api/subscribe')
     .post(function(req, res) {
-        console.log(`==========NEW USER: ${req.body.login} TRY TO SUBSCRIBE=============`);
+        console.log(`${new Date()}==========NEW USER: ${req.body.login} TRY TO SUBSCRIBE=============`);
         const user = {
             login: req.body.login,
             password: req.body.password,
@@ -123,7 +123,7 @@ authRouter.route('/api/subscribe')
         };
         user.userInfo = req.body.userInfo ? req.body.userInfo : null;
         UserRepository.getUserByLogin(user.login).then(() => {
-            console.log('====== PROCESS SUBSCRIBE ENDED WITH A 400=====');
+            console.log(`${new Date()} ====== PROCESS SUBSCRIBE ENDED WITH A 400=====`);
             res.status(400).send({message: 'Identifiant déjà existant'});
         }).catch((err) => {
             if (err && err.statusCode === 404) {
@@ -140,55 +140,55 @@ authRouter.route('/api/subscribe')
                                 subject: mailSubject,
                                 code: user.activationCode,
                                 activationLink: link,
-                            });
-                        console.log('====== PROCESS SUBSCRIBE ENDED =====');
+                            }).then(() => console.log(`${new Date()} ====== PROCESS SUBSCRIBE ENDED =====`))
+                            .catch((error) => console.log(`${new Date()} ====== PROCESS SUBSCRIBE ENDED WTH ERROR ${error}=====`));
                         res.json(userCreated);
                     }).catch((err) => {
-                        console.log(`/subscribe createUser HAVE FAILED, error : ${err}`);
+                        console.error(`${new Date()} /subscribe createUser HAVE FAILED, error : ${err}`);
                         ErrorHandler.errorHandler(err, res);
                     });
                 })
             } else {
-                console.log(`/subscribe getUserByLogin HAVE FAILED, error : ${err}`);
+                console.error(`${new Date()} /subscribe getUserByLogin HAVE FAILED, error : ${err}`);
                 ErrorHandler.errorHandler(err, res);
             }
         })
     });
 authRouter.route('/api/activate')
     .post(function(req, res) {
-        console.log(`==========TRY TO ACTIVATE ACCOUNT WITH KEY : ${req.body.activationCode}=============`);
+        console.log(`${new Date()}==========TRY TO ACTIVATE ACCOUNT WITH KEY : ${req.body.activationCode}=============`);
         if (req.body.activationCode) {
             UserRepository.getUserByActivationKey(req.body.activationCode).then((user) => {
                 if (user) {
                     if (user.mail === req.body.mail) {
                         UserRepository.activateUserAccount(user).then((userActivated) => {
                             res.status(200).json(userActivated);
-                            console.log('====== PROCESS ACTIVATE ENDED =====');
+                            console.log(`${new Date()} ====== PROCESS ACTIVATE ENDED =====`);
                         }).catch((err) => {
-                            console.log(`/activate activateUserAccount HAVE FAILED, error : ${err}`);
+                            console.error(`${new Date()} /activate activateUserAccount HAVE FAILED, error : ${err}`);
                             ErrorHandler.errorHandler(err, res);
                         })
                     } else {
-                        console.log('====== PROCESS ACTIVATE ENDED WITH A 403 =====');
+                        console.error(`${new Date()}====== PROCESS ACTIVATE ENDED WITH A 403 =====`);
                         res.status(403).send({message: 'Le mail ne correspond pas'})
                     }
                 } else {
-                    console.log('====== PROCESS ACTIVATE ENDED WITH A 404 =====');
+                    console.error(`${new Date()}====== PROCESS ACTIVATE ENDED WITH A 404 =====`);
                     res.status(404).send({message: 'Pas d\'utilisateur avec cette clé'})
                 }
             }).catch((err) => {
-                console.log(`/activate getUserByActivationKey HAVE FAILED, error : ${err}`);
+                console.error(`${new Date()} /activate getUserByActivationKey HAVE FAILED, error : ${err}`);
                 ErrorHandler.errorHandler(err, res);
             });
         } else {
-            console.log('====== PROCESS ACTIVATE ENDED WITH A 400 =====');
+            console.error(`${new Date()} ====== PROCESS ACTIVATE ENDED WITH A 400 =====`);
             res.status(400).send({message: 'Pas de clé d\'activation passée'});
         }
     });
 
 authRouter.route('/api/resend-activate')
     .post(function(req, res) {
-        console.log(`==========TRY TO RESEND ACTIVATION CODE FOR : ${req.body.mail}=============`);
+        console.log(`${new Date()}==========TRY TO RESEND ACTIVATION CODE FOR : ${req.body.mail}=============`);
         if (req.body.mail) {
             UserRepository.getUserByMail(req.body.mail).then((user) => {
                 if (user) {
@@ -205,25 +205,25 @@ authRouter.route('/api/resend-activate')
                                 code: user.activationCode,
                                 activationLink: link,
                             });
-                        console.log('====== PROCESS RESEND ACTIVATION CODE  ENDED =====');
+                        console.log(`${new Date()}====== PROCESS RESEND ACTIVATION CODE  ENDED =====`);
                         res.sendStatus(202);
                     });
                 } else {
-                    console.log('====== PROCESS RESEND ACTIVATION CODE  ENDED WITH A 404 =====');
+                    console.error(`${new Date()}====== PROCESS RESEND ACTIVATION CODE  ENDED WITH A 404 =====`);
                     res.status(404).send({message: 'Aucun utilisateur trouvé avec cet email'})
                 }
             }).catch((err) => {
-                console.log(`/resend-activate getUserByMail HAVE FAILED, error : ${err}`);
+                console.error(`${new Date()} /resend-activate getUserByMail HAVE FAILED, error : ${err}`);
                 ErrorHandler.errorHandler(err, res);
             });
         } else {
-            console.log('====== PROCESS RESEND ACTIVATION CODE  ENDED WITH A 400 =====');
+            console.error(`${new Date()}====== PROCESS RESEND ACTIVATION CODE  ENDED WITH A 400 =====`);
             res.status(400).send({message: 'Aucun email transmis'});
         }
     });
 authRouter.route('/api/reset-password')
     .post(function(req, res) {
-        console.log(`==========TRY TO CREATE RESET KEY TO RESET PASSWORD OF: ${req.body.mail}=============`);
+        console.log(`${new Date()}==========TRY TO CREATE RESET KEY TO RESET PASSWORD OF: ${req.body.mail}=============`);
         if (req.body.mail) {
             UserRepository.getUserByMail(req.body.mail).then((user) => {
                 if (user) {
@@ -244,21 +244,21 @@ authRouter.route('/api/reset-password')
                         res.status(202).send({message: 'Mail envoyé'});
                     });
                 } else {
-                    console.log('====== PROCESS RESET PASSWORD ENDED WITH A 404 =====');
+                    console.error(`${new Date()}====== PROCESS RESET PASSWORD ENDED WITH A 404 =====`);
                     res.status(404).send({message: 'Aucun utilisateur trouvé avec cet email'})
                 }
             }).catch((err) => {
-                console.log(`/resend-activate getUserByMail HAVE FAILED, error : ${err}`);
+                console.error(`${new Date()} /resend-activate getUserByMail HAVE FAILED, error : ${err}`);
                 ErrorHandler.errorHandler(err, res);
             });
         } else {
-            console.log('====== PROCESS RESET PASSWORD ENDED WITH A 400 =====');
+            console.error(`${new Date()}====== PROCESS RESET PASSWORD ENDED WITH A 400 =====`);
             res.status(400).send({message: 'Aucun email transmis'});
         }
     });
 authRouter.route('/api/reset-password-end')
     .post(function(req, res) {
-        console.log(`==========TRY TO CREATE RESET KEY TO RESET PASSWORD OF: ${req.body.mail}=============`);
+        console.log(`${new Date()}==========TRY TO CREATE RESET KEY TO RESET PASSWORD OF: ${req.body.mail}=============`);
         if (req.body.mail) {
             UserRepository.getUserByMail(req.body.mail).then((user) => {
                 if (user) {
@@ -272,26 +272,26 @@ authRouter.route('/api/reset-password-end')
                                     login: userName,
                                     subject: mailSubject
                                 });
-                            console.log('====== PROCESS RESET PASSWORD ENDED =====');
+                            console.log(`${new Date()}====== PROCESS RESET PASSWORD ENDED =====`);
                             res.status(202).send({message: 'Mot de passe changé'});
                         } else {
-                            console.log('====== PROCESS RESET PASSWORD ENDED WITH A 400 =====');
+                            console.error(`${new Date()}====== PROCESS RESET PASSWORD ENDED WITH A 400 =====`);
                             res.status(400).send({message: 'Le code n\'est plus valide, il expire au bout de 24H'})
                         }
                     } else {
-                        console.log('====== PROCESS RESET PASSWORD ENDED WITH A 400 =====');
+                        console.error(`${new Date()}====== PROCESS RESET PASSWORD ENDED WITH A 400 =====`);
                         res.status(400).send({message: 'Le code ne correspond pas'})
                     }
                 } else {
-                    console.log('====== PROCESS RESET PASSWORD ENDED WITH A 404 =====');
+                    console.error(`${new Date()}====== PROCESS RESET PASSWORD ENDED WITH A 404 =====`);
                     res.status(404).send({message: 'Aucun utilisateur trouvé avec cet email'})
                 }
             }).catch((err) => {
-                console.log(`/resend-activate getUserByMail HAVE FAILED, error : ${err}`);
+                console.error(`${new Date()} /resend-activate getUserByMail HAVE FAILED, error : ${err}`);
                 ErrorHandler.errorHandler(err, res);
             });
         } else {
-            console.log('====== PROCESS RESET PASSWORD ENDED WITH A 400 =====');
+            console.error(`${new Date()}====== PROCESS RESET PASSWORD ENDED WITH A 400 =====`);
             res.status(400).send({message: 'Aucun email transmis'});
         }
     });

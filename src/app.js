@@ -14,12 +14,12 @@ fs.access(__dirname + '/../files', fs.constants.F_OK, (error) => {
     if (error) {
         fs.mkdir(__dirname + '/../files', {}, (errorMdirMain) => {
             if (errorMdirMain) {
-                console.log(errorMdirMain);
+                console.error(errorMdirMain);
             }
             else {
                 fs.mkdir(__dirname + '/../files/pictures', {}, (errorMdirSub) => {
                     if (errorMdirSub) {
-                        console.log(errorMdirSub);
+                        console.error(errorMdirSub);
                     }
                 });
             }
@@ -52,7 +52,7 @@ MailSender.configureSMTP();
 //
 // });
 http.listen(port, hostname, function(){
-    console.log("Serve starting on -----> http://"+ hostname +":"+port+"\n");
+    console.log("Serve starting on -----> "+ hostname +":"+port+"\n");
     process.env.SERVER_ROOT = path.join(__dirname, '/..');
 });
 

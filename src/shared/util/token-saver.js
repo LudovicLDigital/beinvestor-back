@@ -14,14 +14,14 @@ const TokenSaver = {
             userFound.roles = userRoles;
             let accessToken = TokenSaver.generateToken(userFound);
             let refreshToken = jwt.sign({data: userFound}, process.env.REFRESH_TOKEN_SECRET);
-            console.log(`====TRYING TO CREATE A NEW TOKEN WITH USER ID : ${userFound.id}===`);
+            console.log(`${new Date()}====TRYING TO CREATE A NEW TOKEN WITH USER ID : ${userFound.id}===`);
             UserTokenRepository.createToken(userFound.id, refreshToken).then(() => {
                 refreshToken = refreshToken.replace(/"/g, '');
                 accessToken = accessToken.replace(/"/g, '');
                 res.json({accessToken: accessToken, refreshToken: refreshToken})
             }).catch((err) => {
                 if (err && err.constraint === 'userId_is_unique') {
-                    console.log(`====USERID EXISTING IN DB, TRYING TO UPDATE TOKEN NOW===`);
+                    console.log(`${new Date()}====USERID EXISTING IN DB, TRYING TO UPDATE TOKEN NOW===`);
                     UserTokenRepository.updateToken(userFound.id, refreshToken).then(() => {
                         refreshToken = refreshToken.replace(/"/g, '');
                         accessToken = accessToken.replace(/"/g, '');
@@ -31,7 +31,7 @@ const TokenSaver = {
                         ErrorHandler.errorHandler(err, res);
                     });
                 } else {
-                    console.log(`/login HAVE FAILED to createToken in db, error : ${err}`);
+                    console.error(`${new Date()} /login HAVE FAILED to createToken in db, error : ${err}`);
                     ErrorHandler.errorHandler(err, res);
                 }
             });
