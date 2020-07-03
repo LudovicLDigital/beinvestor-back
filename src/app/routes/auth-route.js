@@ -126,15 +126,12 @@ authRouter.route('/api/subscribe')
             console.log(`${new Date()} ====== PROCESS SUBSCRIBE ENDED WITH A 400=====`);
             res.status(400).send({message: 'Identifiant déjà existant'});
         }).catch((err) => {
-            console.log('DEBUG ======= err.statusCode');
-            console.log(err.statusCode);
             if (err && err.statusCode === 404) {
+                console.log(new Date() + ' getUserByLogin ======= err.statusCode : ' + err.statusCode + ' can create the user');
                 crypto.randomBytes(5, function (err, buf) {
                     // Ensure the activation code is unique.
                     user.activationCode = buf.toString('hex');
                     UserRepository.createUser(user).then((userCreated) => {
-                        console.log('DEBUG ======= userCreated.id');
-                        console.log(userCreated.id);
                         const link = 'beinvestorapp://account/active?mail='+ user.mail +'&key=' + user.activationCode;
                         const userName = (user.userInfo && user.userInfo.firstName) ? user.userInfo.firstName: user.login;
                         const mailSubject = userName + ', activer votre compte BeInvestor !';
