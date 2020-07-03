@@ -127,6 +127,7 @@ authRouter.route('/api/subscribe')
             res.status(400).send({message: 'Identifiant déjà existant'});
         }).catch((err) => {
             if (err && err.statusCode === 404) {
+                console.log(new Date() + ' getUserByLogin ======= err.statusCode : ' + err.statusCode + ' can create the user');
                 crypto.randomBytes(5, function (err, buf) {
                     // Ensure the activation code is unique.
                     user.activationCode = buf.toString('hex');
