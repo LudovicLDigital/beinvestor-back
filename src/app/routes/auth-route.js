@@ -41,7 +41,7 @@ function connectUserBylogin(req, res) {
     console.log(`${new Date()}===TRYING connectUserBylogin : ${req.body.login}===`);
     UserRepository.getUserByLogin(req.body.login).then((userFound) => {
         if (userFound && userFound !== null) {
-           checkPassWords(userFound, req, res);
+            checkPassWords(userFound, req, res);
         } else {
             ErrorHandler.errorHandler({message: 'Aucun login correspondant'}, res);
         }
@@ -141,7 +141,11 @@ authRouter.route('/api/subscribe')
                                 subject: mailSubject,
                                 code: user.activationCode,
                                 activationLink: link,
-                            }).then(() => console.log(`${new Date()} ====== PROCESS SUBSCRIBE ENDED =====`))
+                            },
+                            `Bienvenue dans la communauté BeInvestor !
+                             Pour activer votre compte et profiter pleinement de l'application,
+                             rentrer le code suivant dans l'application  : ${user.activationCode}`
+                            ).then(() => console.log(`${new Date()} ====== PROCESS SUBSCRIBE ENDED =====`))
                             .catch((error) => console.log(`${new Date()} ====== PROCESS SUBSCRIBE ENDED WTH ERROR ${error}=====`));
                         res.json(userCreated);
                     }).catch((err) => {
@@ -205,7 +209,10 @@ authRouter.route('/api/resend-activate')
                                 subject: mailSubject,
                                 code: user.activationCode,
                                 activationLink: link,
-                            });
+                            },
+                            `Bienvenue dans la communauté BeInvestor !
+                             Pour activer votre compte et profiter pleinement de l'application,
+                             rentrer le code suivant dans l'application  : ${user.activationCode}` );
                         console.log(`${new Date()}====== PROCESS RESEND ACTIVATION CODE  ENDED =====`);
                         res.sendStatus(202);
                     });
@@ -240,7 +247,11 @@ authRouter.route('/api/reset-password')
                                 subject: mailSubject,
                                 code: user.resetPasswordCode,
                                 resetLink: link,
-                            });
+                            },
+                            `⚠️Attention ! Ce mail est envoyé car une demande de réinitialisation de mot de passe est demandée. 
+                             Pour réinitialiser votre mot de passe, vous avez 24h pour
+                             rentrer le code suivant dans l'application  : ${user.resetPasswordCode}   
+                             Si vous n'êtes pas à l'origine de cette demande vous pouvez ignorer ce mail`);
                         console.log('====== PROCESS RESET PASSWORD ENDED =====');
                         res.status(202).send({message: 'Mail envoyé'});
                     });
@@ -272,7 +283,9 @@ authRouter.route('/api/reset-password-end')
                                 {
                                     login: userName,
                                     subject: mailSubject
-                                });
+                                },
+                                `⚠️Attention votre mot de passe vient d'être modifié !
+                                Si ce n'était pas vous, nous vous invitons à changer votre mot de passe rapidement`);
                             console.log(`${new Date()}====== PROCESS RESET PASSWORD ENDED =====`);
                             res.status(202).send({message: 'Mot de passe changé'});
                         } else {
