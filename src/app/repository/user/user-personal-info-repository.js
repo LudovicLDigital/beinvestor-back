@@ -1,11 +1,12 @@
 const UserPersonalInfo = require("../../models/user/user-personal-info");
-
+const Tools = require("../../../shared/util/tools");
 class UserPersonalInfoRepository {
     static async createUserInfo(userDatas, userId){
+        const convertDateTimeBirth = Tools.convertToStringForDateTimeFormat(userDatas.birthDate);
         return await UserPersonalInfo.query().insertGraph({
             firstName: userDatas.firstName,
             lastName: userDatas.lastName,
-            birthDate: userDatas.birthDate,
+            birthDate: convertDateTimeBirth,
             userId: userId
         });
     }
@@ -15,10 +16,11 @@ class UserPersonalInfoRepository {
     }
     static async updateUserInfo(infoDatas){
         const updateInfos = new UserPersonalInfo();
+        const convertDateTimeBirth = Tools.convertToStringForDateTimeFormat(infoDatas.birthDate);
         updateInfos.id = infoDatas.id;
         updateInfos.firstName = infoDatas.firstName;
         updateInfos.lastName = infoDatas.lastName;
-        updateInfos.birthDate = infoDatas.birthDate;
+        updateInfos.birthDate = convertDateTimeBirth;
         updateInfos.userId = infoDatas.userId;
         return await UserPersonalInfo.query().updateAndFetchById(updateInfos.id, updateInfos).throwIfNotFound();
     }

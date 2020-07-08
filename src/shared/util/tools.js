@@ -13,5 +13,17 @@ class Tools {
         }
         return rounded;
     }
+    static convertToStringForDateTimeFormat(dateToConvert) {
+        const dateInstanciate = new Date(dateToConvert);
+        const month = Tools.setAzeroNeeded(dateInstanciate.getMonth() + 1);
+        const day = Tools.setAzeroNeeded(dateInstanciate.getDate());
+        const hour = Tools.setAzeroNeeded(dateInstanciate.getHours());
+        const minute =  Tools.setAzeroNeeded(dateInstanciate.getMinutes());
+        const seconde = Tools.setAzeroNeeded(dateInstanciate.getSeconds());
+        return `${dateInstanciate.getFullYear()}-${month}-${day} ${hour}:${minute}:${seconde}`
+    }
+    static setAzeroNeeded(number) {
+        return number > 10 ? number : `0${number}`;
+    }
 }
 module.exports = Tools;
