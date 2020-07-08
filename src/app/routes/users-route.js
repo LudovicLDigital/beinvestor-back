@@ -133,7 +133,11 @@ userRouter.route('/api/users/change-password')
             if (match) {
                 UserRepository.changeUserPassword(req.body.newPassword, req.user.data.id).then((userUpdated) => {
                     const mailSubject = 'Changement de votre mot de passe BeInvestor';
-                    MailSender.sendAnAppMail(userUpdated.mail, mailSubject, Constants.MAIL_PASS_CHANGED, {login: req.user.data.login, subject: mailSubject});
+                    MailSender.sendAnAppMail(userUpdated.mail, mailSubject, Constants.MAIL_PASS_CHANGED,
+                        {login: req.user.data.login, subject: mailSubject}
+                        ,
+                        `⚠️Attention votre mot de passe vient d'être modifié !
+                         Si ce n'était pas vous, nous vous invitons à changer votre mot de passe rapidement`);
                     TokenSaver.generateAndSaveUserFoundToken(req, res, userUpdated);
                 }).catch((rejected) => {
                     console.error(`${new Date()} REJECTED : ${rejected}`);

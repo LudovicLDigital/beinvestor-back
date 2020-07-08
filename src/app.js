@@ -30,27 +30,27 @@ SocketManager.prepareConnection(http);
 MailSender.configureSMTP();
 //TEMPORAIRE USED TO SHOW MAIL TEMPLATES
 // view engine setup
-// app.set('views', path.join(__dirname, 'shared/views'));
-// app.set('view engine', 'ejs');
-// app.get('/',function (req, res) {
-//     // res.render('mail-confirm-account', {
-//     //     subject: 'Activation de votre compte',
-//     //     name: 'Ludovic',
-//     //     activationLink: 'beinvestorapp://account/active',
-//     //     code: 'Test42',
-//     // })
-//     // res.render('mail-password-changed', {
-//     //     subject: 'Changement du mot de passe',
-//     //     login: 'Ludovic'
-//     // })
+app.set('views', path.join(__dirname, 'shared/views'));
+app.set('view engine', 'ejs');
+app.get('/',function (req, res) {
+    res.render('mail-confirm-account', {
+        subject: 'Activation de votre compte',
+        name: 'Ludovic',
+        activationLink: 'beinvestorapp://account/active',
+        code: 'Test42',
+    })
+    // res.render('mail-password-changed', {
+    //     subject: 'Changement du mot de passe',
+    //     login: 'Ludovic'
+    // })
 //     res.render('mail-reset-password-key', {
 //         subject: 'Réinitialisation du mot de passe',
 //         name: 'Ludovic',
 //         resetLink: 'beinvestorapp://account/reset',
 //         code: 'Test42',
 //     })
-//
-// });
+
+});
 http.listen(port, hostname, function(){
     console.log("Serve starting on -----> "+ hostname +":"+port+"\n");
     process.env.SERVER_ROOT = path.join(__dirname, '/..');

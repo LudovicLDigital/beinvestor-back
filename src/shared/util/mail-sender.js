@@ -11,7 +11,7 @@ const MailSender = {
             }
         });
     },
-    sendAnAppMail(to, subject, templateFileName, dataForTemplate) {
+    sendAnAppMail(to, subject, templateFileName, dataForTemplate, plainText) {
         return new Promise((resolve, reject) => {
             ejs.renderFile(`${__dirname}/../views/${templateFileName}.ejs`, dataForTemplate, function (err, data) {
                 if (err) {
@@ -22,6 +22,7 @@ const MailSender = {
                         to: to,         // List of recipients
                         subject: subject, // Subject line
                         html: data,
+                        text: plainText,
                         attachments: [{
                             filename: 'icon.png',
                             path: process.env.SERVER_ROOT +'/public/assets/icon.png',
