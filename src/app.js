@@ -1,6 +1,6 @@
 require('custom-env').env(true);
 const hostname = process.env.SERVER_URL;
-const port = process.env.PORT || process.env.SERVER_PORT;
+const port = process.env.SERVER_PORT ||  process.env.PORT ;
 const app = require('./shared/config/main-app-router');
 const http = require('http').Server(app);
 const SocketManager = require('./shared/util/socket-manager');
