@@ -33,12 +33,12 @@ MailSender.configureSMTP();
 app.set('views', path.join(__dirname, 'shared/views'));
 app.set('view engine', 'ejs');
 app.get('/',function (req, res) {
-    res.render('mail-confirm-account', {
-        subject: 'Activation de votre compte',
-        name: 'Ludovic',
-        activationLink: 'beinvestorapp://account/active',
-        code: 'Test42',
-    })
+//     res.render('mail-confirm-account', {
+//         subject: 'Activation de votre compte',
+//         name: 'Ludovic',
+//         activationLink: 'beinvestorapp://account/active',
+//         code: 'Test42',
+//     })
     // res.render('mail-password-changed', {
     //     subject: 'Changement du mot de passe',
     //     login: 'Ludovic'
@@ -49,7 +49,7 @@ app.get('/',function (req, res) {
 //         resetLink: 'beinvestorapp://account/reset',
 //         code: 'Test42',
 //     })
-
+res.send('Beinvestor Server is now running on port : ' + port);
 });
 http.listen(port, hostname, function(){
     console.log("Serve starting on -----> "+ hostname +":"+port+"\n");
