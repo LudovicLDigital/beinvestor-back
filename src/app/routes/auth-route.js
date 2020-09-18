@@ -146,7 +146,9 @@ authRouter.route('/api/subscribe')
                              Pour activer votre compte et profiter pleinement de l'application,
                              rentrer le code suivant dans l'application  : ${user.activationCode}`
                             ).then(() => console.log(`${new Date()} ====== PROCESS SUBSCRIBE ENDED =====`))
-                            .catch((error) => console.log(`${new Date()} ====== PROCESS SUBSCRIBE ENDED WTH ERROR ${error}=====`));
+                            .catch((error) => console.log(`${new Date()} ====== PROCESS SUBSCRIBE ENDED WTH ERROR ${error}=====`)).catch((rejected) => {
+                            console.error(`${new Date()} REJECTED : ${rejected}`);
+                        });
                         res.json(userCreated);
                     }).catch((err) => {
                         console.error(`${new Date()} /subscribe createUser HAVE FAILED, error : ${err}`);
@@ -212,7 +214,9 @@ authRouter.route('/api/resend-activate')
                             },
                             `Bienvenue dans la communauté BeInvestor !
                              Pour activer votre compte et profiter pleinement de l'application,
-                             rentrer le code suivant dans l'application  : ${user.activationCode}` );
+                             rentrer le code suivant dans l'application  : ${user.activationCode}` ).catch((rejected) => {
+                            console.error(`${new Date()} REJECTED : ${rejected}`);
+                        });
                         console.log(`${new Date()}====== PROCESS RESEND ACTIVATION CODE  ENDED =====`);
                         res.sendStatus(202);
                     });
@@ -251,7 +255,9 @@ authRouter.route('/api/reset-password')
                             `⚠️Attention ! Ce mail est envoyé car une demande de réinitialisation de mot de passe est demandée. 
                              Pour réinitialiser votre mot de passe, vous avez 24h pour
                              rentrer le code suivant dans l'application  : ${user.resetPasswordCode}   
-                             Si vous n'êtes pas à l'origine de cette demande vous pouvez ignorer ce mail`);
+                             Si vous n'êtes pas à l'origine de cette demande vous pouvez ignorer ce mail`).catch((rejected) => {
+                            console.error(`${new Date()} REJECTED : ${rejected}`);
+                        });
                         console.log('====== PROCESS RESET PASSWORD ENDED =====');
                         res.status(202).send({message: 'Mail envoyé'});
                     });
@@ -285,7 +291,9 @@ authRouter.route('/api/reset-password-end')
                                     subject: mailSubject
                                 },
                                 `⚠️Attention votre mot de passe vient d'être modifié !
-                                Si ce n'était pas vous, nous vous invitons à changer votre mot de passe rapidement`);
+                                Si ce n'était pas vous, nous vous invitons à changer votre mot de passe rapidement`).catch((rejected) => {
+                                console.error(`${new Date()} REJECTED : ${rejected}`);
+                            });
                             console.log(`${new Date()}====== PROCESS RESET PASSWORD ENDED =====`);
                             res.status(202).send({message: 'Mot de passe changé'});
                         } else {
