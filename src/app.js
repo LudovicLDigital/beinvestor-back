@@ -1,6 +1,7 @@
 require('custom-env').env(true);
 const hostname = process.env.SERVER_URL;
 const port = process.env.SERVER_PORT;
+process.env.NODE_TLS_REJECT_UNAUTHORIZED='0';
 const app = require('./shared/config/main-app-router');
 const http = require('http').Server(app);
 const SocketManager = require('./shared/util/socket-manager');
@@ -43,12 +44,12 @@ app.get('/',function (req, res) {
     //     subject: 'Changement du mot de passe',
     //     login: 'Ludovic'
     // })
-//     res.render('mail-reset-password-key', {
-//         subject: 'Réinitialisation du mot de passe',
-//         name: 'Ludovic',
-//         resetLink: 'beinvestorapp://account/reset',
-//         code: 'Test42',
-//     })
+    // res.render('mail-reset-password-key', {
+    //     subject: 'Réinitialisation du mot de passe',
+    //     name: 'Ludovic',
+    //     resetLink: 'beinvestorapp://account/reset',
+    //     code: 'Test42',
+    // })
 
 });
 http.listen(port, hostname, function(){
