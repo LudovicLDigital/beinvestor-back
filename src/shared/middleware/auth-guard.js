@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const UserPersonalInfoRepository = require('../../app/repository/user/user-personal-info-repository')
 const auth = {
     authenticationToken(req, res, next) {
         const authHeader = req.headers['authorization'];
@@ -14,7 +15,13 @@ const auth = {
                 return res.status(403).send({message: 'Action non autorisée'});
             }
             req.user = user;
-            next()
+            UserPersonalInfoRepository.getUserInfoByUserId(user.data.id).then((userInfo) => {
+                req.user.data.userInfo = userInfo;
+                next();
+            }).catch((rejected) => {
+                console.error(`${new Date()}==== FAILED TO getUserInfoByUserId WITH user : ${user.data.id} Error : ${rejected} ==========`);
+                next();
+            })
         })
     }
 };
