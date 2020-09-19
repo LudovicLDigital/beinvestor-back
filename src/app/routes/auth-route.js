@@ -17,6 +17,7 @@ const crypto = require('crypto');
 authRouter.route('/api/login')
     .post(function(req, res) {
         console.log(`${new Date()}====TRYING TO GET USER BY LOGIN REQUESTED : ${req.body.login}===`);
+        req.body.login = req.body.login.trim();
         const mailRgx = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9._-]{2,}\.[a-z]{2,4}$/;
         if (mailRgx.test(req.body.login)) {
             connectUserByMail(req, res);
@@ -165,6 +166,7 @@ authRouter.route('/api/activate')
     .post(function(req, res) {
         console.log(`${new Date()}==========TRY TO ACTIVATE ACCOUNT WITH KEY : ${req.body.activationCode}=============`);
         if (req.body.activationCode) {
+            req.body.activationCode = req.body.activationCode.trim();
             UserRepository.getUserByActivationKey(req.body.activationCode).then((user) => {
                 if (user) {
                     if (user.mail === req.body.mail) {
@@ -197,6 +199,7 @@ authRouter.route('/api/resend-activate')
     .post(function(req, res) {
         console.log(`${new Date()}==========TRY TO RESEND ACTIVATION CODE FOR : ${req.body.mail}=============`);
         if (req.body.mail) {
+            req.body.mail = req.body.mail.trim();
             UserRepository.getUserByMail(req.body.mail).then((user) => {
                 if (user) {
                     crypto.randomBytes(5, function (err, buf) {
@@ -237,6 +240,7 @@ authRouter.route('/api/reset-password')
     .post(function(req, res) {
         console.log(`${new Date()}==========TRY TO CREATE RESET KEY TO RESET PASSWORD OF: ${req.body.mail}=============`);
         if (req.body.mail) {
+            req.body.mail = req.body.mail.trim();
             UserRepository.getUserByMail(req.body.mail).then((user) => {
                 if (user) {
                     crypto.randomBytes(5, function (err, buf) {
@@ -278,8 +282,10 @@ authRouter.route('/api/reset-password-end')
     .post(function(req, res) {
         console.log(`${new Date()}==========TRY TO CREATE RESET KEY TO RESET PASSWORD OF: ${req.body.mail}=============`);
         if (req.body.mail) {
+            req.body.mail = req.body.mail.trim();
             UserRepository.getUserByMail(req.body.mail).then((user) => {
                 if (user) {
+                    req.body.resetKey = req.body.resetKey.trim();
                     if (user.resetPasswordCode === req.body.resetKey) {
                         if (new Date().getTime() < new Date(user.resetKeyExpire)) {
                             UserRepository.changeUserPassword(req.body.newPassword, user.id);
