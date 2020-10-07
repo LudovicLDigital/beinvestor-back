@@ -90,6 +90,15 @@ userRouter.route('/api/users/current')
             console.error(`${new Date()} /users/current UPDATE HAVE FAILED, error : ${err}`);
             ErrorHandler.errorHandler(err, res);
         });
+    })
+    .delete(Auth.authenticationToken, Access.haveAccess(Constants.DELETE, Constants.T_USER),  function(req, res){
+        console.log(`${new Date()} REMOVE ACCOUNT OF THE CURRENT USER WITH ID ${req.user.data.id}`);
+        UserRepository.deleteUser(req.user.data.id).then(() => {
+            res.sendStatus(204);
+        }).catch((err) => {
+            console.error(`${new Date()} /users/current REMOVE ACCOUNT OF THE CURRENT USER FAILED, error : ${err}`);
+            ErrorHandler.errorHandler(err, res);
+        });
     });
 /**
  * Interact with user's id
