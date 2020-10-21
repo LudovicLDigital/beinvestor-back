@@ -1,4 +1,5 @@
 const fetch = require('node-fetch');
+const Tools = require("./tools");
 /**
  * recover all dvf transaction from the gouv api https://www.data.gouv.fr/fr/reuses/micro-api-dvf-demande-de-valeurs-foncieres/
  * @param cityCode the city code to recover transactions
@@ -47,7 +48,7 @@ function calculateAveragePrice(transactionsArray) {
             sumOfAll = sumOfAll + (transaction.valeur_fonciere / transaction.surface_terrain);
         }
     }
-    return sumOfAll / countTransaction;
+    return Tools.roundNumber(sumOfAll / countTransaction, 2);
 }
 
 /**
