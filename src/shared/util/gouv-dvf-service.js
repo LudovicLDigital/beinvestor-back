@@ -2,14 +2,14 @@ const fetch = require('node-fetch');
 const Tools = require("./tools");
 /**
  * recover all dvf transaction from the gouv api https://www.data.gouv.fr/fr/reuses/micro-api-dvf-demande-de-valeurs-foncieres/
- * @param cityCode the city code to recover transactions
+ * @param code_postal the city post code to recover transactions
  * @returns {Promise<Response>} return an array of all transaction on the two latest year
  */
-async function getCityCodeLastestTransaction(cityCode) {
-    const appartements = await fetch(`http://api.cquest.org/dvf?code_commune=${cityCode}&nature_mutation=Vente&type_local=Appartement`).then( (response) => response.json()).then( async (json) => {
+async function getCityCodeLastestTransaction(code_postal) {
+    const appartements = await fetch(`http://api.cquest.org/dvf?code_postal=${code_postal}&nature_mutation=Vente&type_local=Appartement`).then( (response) => response.json()).then( async (json) => {
         return checkForFilter(json)
     });
-    const maisons = await fetch(`http://api.cquest.org/dvf?code_commune=${cityCode}&nature_mutation=Vente&type_local=Maison`).then( (response) => response.json()).then( async (json) => {
+    const maisons = await fetch(`http://api.cquest.org/dvf?code_postal=${code_postal}&nature_mutation=Vente&type_local=Maison`).then( (response) => response.json()).then( async (json) => {
         return checkForFilter(json)
     });
     return appartements.concat(maisons);
@@ -34,21 +34,25 @@ function filterACorrectSell(transaction) {
 }
 
 /**
- * deduce the average m² price of the transactions array passed
+ * deduce the average m² price of the transactions array passed (use with the median)
  * @param transactionsArray the transactions array recover from the https://www.data.gouv.fr/fr/reuses/micro-api-dvf-demande-de-valeurs-foncieres/
  * @returns {number} the average price €/m²
  */
 function calculateAveragePrice(transactionsArray) {
-    let sumOfAll = 0;
-    let countTransaction = transactionsArray.length;
+    let validValues = [];
     for(const transaction of transactionsArray) {
-        if (transaction.valeur_fonciere === null || transaction.surface_terrain === null) {
-            countTransaction = countTransaction - 1;
-        } else {
-            sumOfAll = sumOfAll + (transaction.valeur_fonciere / transaction.surface_terrain);
+        if (transaction.valeur_fonciere !== null && transaction.surface_relle_bati !== null) {
+            const m2 = (transaction.valeur_fonciere / transaction.surface_relle_bati);
+            validValues.push(m2);
         }
     }
-    return Tools.roundNumber(sumOfAll / countTransaction, 2);
+    let sortedArray = validValues.sort();
+    let mediane = (sortedArray.length + 1) / 2;
+    if (mediane % 1 === 0) {
+        return Tools.roundNumber(sortedArray[mediane], 2);
+    } else {
+        return Tools.roundNumber((sortedArray[Math.floor(mediane)] + sortedArray[Math.ceil(mediane)]) / 2, 2);
+    }
 }
 
 /**

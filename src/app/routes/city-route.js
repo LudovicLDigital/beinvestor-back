@@ -73,14 +73,14 @@ cityRouter.route('/api/city/geo-adress-of/:city_id')
             ErrorHandler.errorHandler(err, res);
         });
     });
-cityRouter.route('/api/city/price/:city_code')
+cityRouter.route('/api/city/price/:city_post_code')
 // get the city's €/m² by city code
     .get(Auth.authenticationToken, Access.haveAccess(Constants.READ_ALL, Constants.T_CITY), function(req, res){
-        console.log(`${new Date()}====TRYING TO GET CITY's M² PRICE WITH CITY CODE: ${req.params.city_code}===`);
-        returnPriceOfCityWithCityCode(req.params.city_code).then((price) => {
+        console.log(`${new Date()}====TRYING TO GET CITY's M² PRICE WITH CITY CODE: ${req.params.city_post_code}===`);
+        returnPriceOfCityWithCityCode(req.params.city_post_code).then((price) => {
             res.json(price);
         }).catch((error) => {
-            console.error(`${new Date()} /api/city/price/:city_code GET PRICE BY CITY CODE FAILED, error : ${error}`);
+            console.error(`${new Date()} /api/city/price/:city_post_code GET PRICE BY CITY CODE FAILED, error : ${error}`);
             ErrorHandler.errorHandler(error, res);
         })
     });
