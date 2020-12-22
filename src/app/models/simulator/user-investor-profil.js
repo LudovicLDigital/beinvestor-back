@@ -2,12 +2,13 @@ const { Model } = require("objection");
 const knexInstance = require("../../../../knexInstance");
 
 class UserInvestorProfil extends Model {
-    constructor(id, professionnalSalary, nbEstate, annualRent, actualCreditMensualities) {
+    constructor(id, professionnalSalary, nbEstate, annualRent, actualCreditMensualities, fiscalPart) {
         super();
         this.id = id;
         this.professionnalSalary = professionnalSalary;
         this.nbEstate = nbEstate;
         this.annualRent = annualRent;
+        this.fiscalPart = fiscalPart;
         this.actualCreditMensualities = actualCreditMensualities;
     }
 
