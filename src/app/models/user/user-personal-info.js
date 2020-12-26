@@ -9,6 +9,7 @@ class UserPersonalInfo extends Model {
         const User = require("./user");
         const Group = require("../group/group");
         const Picture = require("../picture");
+        const InvestorProfil = require("../simulator/user-investor-profil");
         return {
             user: {
                 relation: Model.BelongsToOneRelation,
@@ -16,6 +17,14 @@ class UserPersonalInfo extends Model {
                 join: {
                     from: 'user.id',
                     to: 'user_personal_info.user_id'
+                },
+            },
+            investorProfil: {
+                relation: Model.BelongsToOneRelation,
+                modelClass: InvestorProfil,
+                join: {
+                    from: 'user_investor_profil.id',
+                    to: 'user_personal_info.userInvestorId'
                 },
             },
             picture: {
