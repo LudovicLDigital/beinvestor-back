@@ -2,6 +2,7 @@ const authRouter = require('../../shared/config/router-configurator');
 const ErrorHandler = require("../../shared/util/error-handler");
 const PasswordCrypter = require("../../shared/util/password-crypter");
 const UserRepository = require('../repository/user/user-repository');
+const UserPersonalInfoRepository = require('../repository/user/user-personal-info-repository');
 const UserRolesRepository = require('../repository/roles/user-roles-repository');
 const UserTokenRepository = require('../repository/user/user-token-repository');
 const Auth = require("../../shared/middleware/auth-guard");
@@ -73,6 +74,7 @@ authRouter.route('/api/token')
     .post(function(req, res){
         console.log(`${new Date()}====TRYING TO REQUEST A NEW ACCESS TOKEN WITH REFRESH TOKEN===`);
         const refreshToken = req.body.token;
+        const deviceId = req.body.deviceId;
         if (refreshToken == null) return res.sendStatus(401);
         const token = refreshToken.replace(/"/g, '');
         UserTokenRepository.getTokenSaved(token).then((tokenFound) => {
@@ -83,8 +85,13 @@ authRouter.route('/api/token')
                 UserRolesRepository.getAllPassedUserRoles(userFound.id).then((userRoles) => {
                     userFound.roles = userRoles;
                     req.user = userFound;
-                    const accessToken = TokenSaver.generateToken(userFound);
-                    res.json({accessToken: accessToken})
+                    UserPersonalInfoRepository.updateDeviceIdOnConnect(userFound.id, deviceId).then(() => {
+                        const accessToken = TokenSaver.generateToken(userFound);
+                        res.json({accessToken: accessToken})
+                    }).catch((error) => {
+                        console.error(`${new Date()} /token HAVE FAILED on updateDeviceIdOnConnect, error : ${err}`);
+                        ErrorHandler.errorHandler(error, res);
+                    })
                 }).catch((error) => {
                     console.error(`${new Date()} /token HAVE FAILED on getAllPassedUserRoles, error : ${err}`);
                     ErrorHandler.errorHandler(error, res);

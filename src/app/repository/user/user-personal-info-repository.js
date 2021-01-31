@@ -28,5 +28,9 @@ class UserPersonalInfoRepository {
     static async linkPicture(pic, userId){
         return await UserPersonalInfo.relatedQuery('picture').for(userId).relate(pic.id);
     }
+    static async updateDeviceIdOnConnect(userId, deviceId) {
+        const userInfo = await UserPersonalInfoRepository.getUserInfoByUserId(userId);
+        return await UserPersonalInfo.query().patchAndFetchById(userInfo.id, {deviceId: deviceId}).throwIfNotFound();
+    }
 }
 module.exports = UserPersonalInfoRepository;
