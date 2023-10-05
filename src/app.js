@@ -1,6 +1,7 @@
 require('custom-env').env(true);
 const hostname = process.env.SERVER_URL;
-const port = process.env.SERVER_PORT ;
+const port = process.env.SERVER_PORT;
+process.env.NODE_TLS_REJECT_UNAUTHORIZED='0';
 const app = require('./shared/config/main-app-router');
 const http = require('http').Server(app);
 const SocketManager = require('./shared/util/socket-manager');
@@ -33,23 +34,22 @@ MailSender.configureSMTP();
 app.set('views', path.join(__dirname, 'shared/views'));
 app.set('view engine', 'ejs');
 app.get('/',function (req, res) {
-//     res.render('mail-confirm-account', {
-//         subject: 'Activation de votre compte',
-//         name: 'Ludovic',
-//         activationLink: 'beinvestorapp://account/active',
-//         code: 'Test42',
-//     })
+    // res.render('mail-confirm-account', {
+    //     subject: 'Activation de votre compte',
+    //     name: 'Ludovic',
+    //     activationLink: 'beinvestorapp://account/active',
+    //     code: 'Test42',
+    // })
     // res.render('mail-password-changed', {
     //     subject: 'Changement du mot de passe',
     //     login: 'Ludovic'
     // })
-//     res.render('mail-reset-password-key', {
-//         subject: 'Réinitialisation du mot de passe',
-//         name: 'Ludovic',
-//         resetLink: 'beinvestorapp://account/reset',
-//         code: 'Test42',
-//     })
-res.send('Beinvestor Server is now running on port : ' + port);
+    // res.render('mail-reset-password-key', {
+    //     subject: 'Réinitialisation du mot de passe',
+    //     name: 'Ludovic',
+    //     resetLink: 'beinvestorapp://account/reset',
+    //     code: 'Test42',
+    // })
 });
 http.listen(port, hostname, function(){
     console.log("Serve starting on -----> "+ hostname +":"+port+"\n");

@@ -22,6 +22,7 @@ class UserPersonalInfoRepository {
         updateInfos.lastName = infoDatas.lastName;
         updateInfos.birthDate = convertDateTimeBirth;
         updateInfos.userId = infoDatas.userId;
+        updateInfos.userInvestorId = infoDatas.userInvestorId;
         return await UserPersonalInfo.query().updateAndFetchById(updateInfos.id, updateInfos).throwIfNotFound();
     }
     static async linkPicture(pic, userId){

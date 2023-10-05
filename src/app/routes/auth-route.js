@@ -17,6 +17,7 @@ const crypto = require('crypto');
 authRouter.route('/api/login')
     .post(function(req, res) {
         console.log(`${new Date()}====TRYING TO GET USER BY LOGIN REQUESTED : ${req.body.login}===`);
+        req.body.login = req.body.login.trim();
         const mailRgx = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9._-]{2,}\.[a-z]{2,4}$/;
         if (mailRgx.test(req.body.login)) {
             connectUserByMail(req, res);
@@ -146,7 +147,9 @@ authRouter.route('/api/subscribe')
                              Pour activer votre compte et profiter pleinement de l'application,
                              rentrer le code suivant dans l'application  : ${user.activationCode}`
                             ).then(() => console.log(`${new Date()} ====== PROCESS SUBSCRIBE ENDED =====`))
-                            .catch((error) => console.log(`${new Date()} ====== PROCESS SUBSCRIBE ENDED WTH ERROR ${error}=====`));
+                            .catch((error) => console.log(`${new Date()} ====== PROCESS SUBSCRIBE ENDED WTH ERROR ${error}=====`)).catch((rejected) => {
+                            console.error(`${new Date()} REJECTED : ${rejected}`);
+                        });
                         res.json(userCreated);
                     }).catch((err) => {
                         console.error(`${new Date()} /subscribe createUser HAVE FAILED, error : ${err}`);
@@ -163,6 +166,7 @@ authRouter.route('/api/activate')
     .post(function(req, res) {
         console.log(`${new Date()}==========TRY TO ACTIVATE ACCOUNT WITH KEY : ${req.body.activationCode}=============`);
         if (req.body.activationCode) {
+            req.body.activationCode = req.body.activationCode.trim();
             UserRepository.getUserByActivationKey(req.body.activationCode).then((user) => {
                 if (user) {
                     if (user.mail === req.body.mail) {
@@ -195,6 +199,7 @@ authRouter.route('/api/resend-activate')
     .post(function(req, res) {
         console.log(`${new Date()}==========TRY TO RESEND ACTIVATION CODE FOR : ${req.body.mail}=============`);
         if (req.body.mail) {
+            req.body.mail = req.body.mail.trim();
             UserRepository.getUserByMail(req.body.mail).then((user) => {
                 if (user) {
                     crypto.randomBytes(5, function (err, buf) {
@@ -212,7 +217,9 @@ authRouter.route('/api/resend-activate')
                             },
                             `Bienvenue dans la communauté BeInvestor !
                              Pour activer votre compte et profiter pleinement de l'application,
-                             rentrer le code suivant dans l'application  : ${user.activationCode}` );
+                             rentrer le code suivant dans l'application  : ${user.activationCode}` ).catch((rejected) => {
+                            console.error(`${new Date()} REJECTED : ${rejected}`);
+                        });
                         console.log(`${new Date()}====== PROCESS RESEND ACTIVATION CODE  ENDED =====`);
                         res.sendStatus(202);
                     });
@@ -233,6 +240,7 @@ authRouter.route('/api/reset-password')
     .post(function(req, res) {
         console.log(`${new Date()}==========TRY TO CREATE RESET KEY TO RESET PASSWORD OF: ${req.body.mail}=============`);
         if (req.body.mail) {
+            req.body.mail = req.body.mail.trim();
             UserRepository.getUserByMail(req.body.mail).then((user) => {
                 if (user) {
                     crypto.randomBytes(5, function (err, buf) {
@@ -251,7 +259,9 @@ authRouter.route('/api/reset-password')
                             `⚠️Attention ! Ce mail est envoyé car une demande de réinitialisation de mot de passe est demandée. 
                              Pour réinitialiser votre mot de passe, vous avez 24h pour
                              rentrer le code suivant dans l'application  : ${user.resetPasswordCode}   
-                             Si vous n'êtes pas à l'origine de cette demande vous pouvez ignorer ce mail`);
+                             Si vous n'êtes pas à l'origine de cette demande vous pouvez ignorer ce mail`).catch((rejected) => {
+                            console.error(`${new Date()} REJECTED : ${rejected}`);
+                        });
                         console.log('====== PROCESS RESET PASSWORD ENDED =====');
                         res.status(202).send({message: 'Mail envoyé'});
                     });
@@ -272,8 +282,10 @@ authRouter.route('/api/reset-password-end')
     .post(function(req, res) {
         console.log(`${new Date()}==========TRY TO CREATE RESET KEY TO RESET PASSWORD OF: ${req.body.mail}=============`);
         if (req.body.mail) {
+            req.body.mail = req.body.mail.trim();
             UserRepository.getUserByMail(req.body.mail).then((user) => {
                 if (user) {
+                    req.body.resetKey = req.body.resetKey.trim();
                     if (user.resetPasswordCode === req.body.resetKey) {
                         if (new Date().getTime() < new Date(user.resetKeyExpire)) {
                             UserRepository.changeUserPassword(req.body.newPassword, user.id);
@@ -285,7 +297,9 @@ authRouter.route('/api/reset-password-end')
                                     subject: mailSubject
                                 },
                                 `⚠️Attention votre mot de passe vient d'être modifié !
-                                Si ce n'était pas vous, nous vous invitons à changer votre mot de passe rapidement`);
+                                Si ce n'était pas vous, nous vous invitons à changer votre mot de passe rapidement`).catch((rejected) => {
+                                console.error(`${new Date()} REJECTED : ${rejected}`);
+                            });
                             console.log(`${new Date()}====== PROCESS RESET PASSWORD ENDED =====`);
                             res.status(202).send({message: 'Mot de passe changé'});
                         } else {

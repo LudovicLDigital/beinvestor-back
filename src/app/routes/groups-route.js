@@ -226,7 +226,7 @@ groupRouter.route('/api/groups/current/:pagination')
                 pagination.page = paginationParam.page ? paginationParam.page : 0;
                 pagination.numberItem = paginationParam.numberItem ? paginationParam.numberItem : Constants.PAGING_ITEM_LIMIT;
             }
-            UserGroupRepository.getAllGroupOfUser(req.user.data.id, pagination).then((groupsFound) => {
+            UserGroupRepository.getAllGroupOfUser(req.user.data.userInfo.id, pagination).then((groupsFound) => {
                 res.json(groupsFound);
             }).catch((err) => {
                 console.error(`${new Date()} /groups/current GET HAVE FAILED, error : ${err}`);
@@ -244,7 +244,7 @@ groupRouter.route('/api/groups/current/is-member/:group_id')
 // get all groups of the current logged user
     .get(Auth.authenticationToken, Access.haveAccess(Constants.READ, Constants.T_USER_GROUP),  function (req, res) {
         console.log(`${new Date()}=====TRYING TO KNOW IF CURRENT USER IS MEMBER OF GROUP ===`);
-        UserGroupRepository.userIsInGroup(req.params.group_id, req.user.data.id).then((isMember) => {
+        UserGroupRepository.userIsInGroup(req.params.group_id, req.user.data.userInfo.id).then((isMember) => {
             res.json(isMember);
         }).catch((err) => {
             console.error(`${new Date()} /groups/current/is-member GET MEMBER STATUS HAVE FAILED, error : ${err}`);
@@ -258,7 +258,7 @@ groupRouter.route('/api/groups/current/:group_id')
 // the current logged user join group
     .post(Auth.authenticationToken, Access.haveAccess(Constants.CREATE, Constants.T_USER_GROUP),  function (req, res) {
         console.log(`${new Date()}=====TRYING CURRENT USER TO JOIN GROUP : ${req.params.group_id} ===`);
-        UserGroupRepository.addUserToGroup(req.params.group_id, req.user.data.id).then(() => {
+        UserGroupRepository.addUserToGroup(req.params.group_id, req.user.data.userInfo.id).then(() => {
             res.sendStatus(201);
         }).catch((err) => {
             console.error(`${new Date()} /groups/current/:group_id CURRENT USER JOIN GROUP FAILED, error : ${err}`);
@@ -268,7 +268,7 @@ groupRouter.route('/api/groups/current/:group_id')
     // the current logged user left group
     .delete(Auth.authenticationToken, Access.haveAccess(Constants.DELETE, Constants.T_USER_GROUP),  function (req, res) {
         console.log(`${new Date()}=====TRYING CURRENT USER TO LEFT GROUP : ${req.params.group_id} ===`);
-        UserGroupRepository.deleteAMember(req.params.group_id, req.user.data.id).then(() => {
+        UserGroupRepository.deleteAMember(req.params.group_id, req.user.data.userInfo.id).then(() => {
             res.sendStatus(204);
         }).catch((err) => {
             console.error(`${new Date()} /groups/current/:group_id CURRENT USER LEFT GROUP FAILED, error : ${err}`);
