@@ -50,7 +50,6 @@ app.get('/',function (req, res) {
     //     resetLink: 'beinvestorapp://account/reset',
     //     code: 'Test42',
     // })
-
 });
 http.listen(port, hostname, function(){
     console.log("Serve starting on -----> "+ hostname +":"+port+"\n");
